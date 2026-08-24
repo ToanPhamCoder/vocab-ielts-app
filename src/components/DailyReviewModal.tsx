@@ -44,17 +44,17 @@ export function DailyReviewModal({ onDismiss }: DailyReviewModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-md rounded-2xl border border-blue-500/30 bg-slate-900 p-6 shadow-2xl">
-        <h2 className="text-xl font-bold text-white">Bu?i ?n ??u ng?y</h2>
-        <p className="mt-2 text-slate-300">Ch?o bu?i s?ng! ??y l? t? v?ng c?n ?n h?m nay.</p>
+        <h2 className="text-xl font-bold text-white">Buổi ôn đầu ngày</h2>
+        <p className="mt-2 text-slate-300">Chào buổi sáng! Đây là từ vựng cần ôn hôm nay.</p>
 
         <div className="mt-6 space-y-3">
           <div className="flex items-center justify-between rounded-lg bg-slate-800 p-4">
-            <span className="text-slate-300">T? c?n ?n</span>
+            <span className="text-slate-300">Từ cần ôn</span>
             <span className="text-2xl font-bold text-blue-400">{dueCount}</span>
           </div>
           {yesterdayNew > 0 && (
             <div className="flex items-center justify-between rounded-lg bg-slate-800 p-4">
-              <span className="text-slate-300">T? m?i th?m h?m qua</span>
+              <span className="text-slate-300">Từ mới thêm hôm qua</span>
               <span className="text-2xl font-bold text-purple-400">{yesterdayNew}</span>
             </div>
           )}
@@ -66,14 +66,14 @@ export function DailyReviewModal({ onDismiss }: DailyReviewModalProps) {
             onClick={handleDismiss}
             className="flex-1 rounded-lg bg-blue-600 py-3 text-center font-semibold text-white hover:bg-blue-500"
           >
-            B?t ??u ?n t?p
+            Bắt đầu ôn tập
           </Link>
           <button
             type="button"
             onClick={handleDismiss}
             className="rounded-lg border border-slate-600 px-4 py-3 text-slate-300 hover:bg-slate-800"
           >
-            ?? sau
+            Để sau
           </button>
         </div>
       </div>

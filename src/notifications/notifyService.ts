@@ -15,8 +15,8 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 export async function showReviewNotification(count: number): Promise<void> {
   if (!('Notification' in window) || Notification.permission !== 'granted') return
 
-  const title = count === 1 ? '1 t? c?n ?n t?p' : `${count} t? c?n ?n t?p`
-  const body = 'M? app ?? b?t ??u phi?n ?n t?p FSRS'
+  const title = count === 1 ? '1 từ cần ôn tập' : `${count} từ cần ôn tập`
+  const body = 'Mở app để bắt đầu phiên ôn tập FSRS'
 
   if ('serviceWorker' in navigator) {
     const reg = await navigator.serviceWorker.ready

@@ -27,16 +27,16 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-lg rounded-2xl border border-blue-500/30 bg-slate-900 p-6 shadow-2xl">
-        <h1 className="text-2xl font-bold text-white">Ch?o m?ng ??n Vocab IELTS</h1>
+        <h1 className="text-2xl font-bold text-white">Chào mừng đến Vocab IELTS</h1>
         <p className="mt-2 text-slate-300">
-          H?c t? v?ng v?i thu?t to?n FSRS � spaced repetition hi?u qu? nh?t, h??ng t?i IELTS 9.0
+          Học từ vựng với thuật toán FSRS — spaced repetition hiệu quả nhất, hướng tới IELTS 9.0
           Reading.
         </p>
 
         <div className="mt-6 space-y-4">
           <div>
             <label className="mb-1 block text-sm text-slate-300">
-              B?n ??c t?nh ?? bi?t bao nhi?u word families?
+              Bạn ước tính đã biết bao nhiêu word families?
             </label>
             <input
               type="range"
@@ -48,11 +48,11 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
               className="w-full"
             />
             <p className="mt-1 text-center text-lg font-semibold text-blue-400">
-              ~{baseline.toLocaleString()} t?
+              ~{baseline.toLocaleString()} từ
             </p>
           </div>
           <div>
-            <label className="mb-1 block text-sm text-slate-300">Ng?y thi IELTS d? ki?n</label>
+            <label className="mb-1 block text-sm text-slate-300">Ngày thi IELTS dự kiến</label>
             <input
               type="date"
               className="w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 text-slate-100"
@@ -62,18 +62,18 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           </div>
           <div className="rounded-lg bg-slate-800 p-4 text-sm text-slate-300">
             <p>
-              M?c ti?u: <strong className="text-white">9,000 word families</strong> (98% lexical
+              Mục tiêu: <strong className="text-white">9,000 word families</strong> (98% lexical
               coverage cho IELTS Academic Reading)
             </p>
             <p className="mt-2">
-              C?n h?c th?m:{' '}
+              Cần học thêm:{' '}
               <strong className="text-amber-400">
                 {Math.max(0, 9000 - baseline).toLocaleString()}
               </strong>{' '}
-              t? ? ~{monthlyTarget}/th?ng (~{dailyWords}/ng?y)
+              từ → ~{monthlyTarget}/tháng (~{dailyWords}/ngày)
             </p>
             {isAggressiveTarget(dailyWords) && (
-              <p className="mt-2 text-red-400">M?c ti?u kh? tham v?ng � h?y ki?n tr?!</p>
+              <p className="mt-2 text-red-400">Mục tiêu khá tham vọng — hãy kiên trì!</p>
             )}
           </div>
         </div>
@@ -83,7 +83,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           onClick={() => void handleStart()}
           className="mt-6 w-full rounded-lg bg-blue-600 py-3 font-semibold text-white hover:bg-blue-500"
         >
-          B?t ??u h?c
+          Bắt đầu học
         </button>
       </div>
     </div>

@@ -8,7 +8,7 @@ export function StatusDonut({ data }: StatusDonutProps) {
   if (data.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center text-slate-400">
-        Ch?a c? d? li?u
+        Chưa có dữ liệu
       </div>
     )
   }

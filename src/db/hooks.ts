@@ -260,10 +260,10 @@ export function useStats() {
       count,
     })),
     statusDistribution: [
-      { name: '?? thu?c', value: mastered.length, color: '#22c55e' },
-      { name: '?ang h?c', value: learning.length + review.length, color: '#3b82f6' },
-      { name: 'M?i', value: newWords.length, color: '#a855f7' },
-      { name: 'Qu? h?n', value: overdue.length, color: '#ef4444' },
+      { name: 'Đã thuộc', value: mastered.length, color: '#22c55e' },
+      { name: 'Đang học', value: learning.length + review.length, color: '#3b82f6' },
+      { name: 'Mới', value: newWords.length, color: '#a855f7' },
+      { name: 'Quá hạn', value: overdue.length, color: '#ef4444' },
     ].filter((d) => d.value > 0),
   }
 }

@@ -1,11 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: '??' },
-  { to: '/add', label: 'Th?m t?', icon: '?' },
-  { to: '/words', label: 'T? v?ng', icon: '??' },
-  { to: '/review', label: '?n t?p', icon: '??' },
-  { to: '/settings', label: 'C?i ??t', icon: '??' },
+  { to: '/', label: 'Dashboard', icon: '📊' },
+  { to: '/add', label: 'Thêm từ', icon: '➕' },
+  { to: '/words', label: 'Từ vựng', icon: '📚' },
+  { to: '/review', label: 'Ôn tập', icon: '🔄' },
+  { to: '/settings', label: 'Cài đặt', icon: '⚙️' },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -17,7 +17,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <h1 className="text-2xl font-bold text-white sm:text-3xl">
           <span className="text-blue-400">Vocab</span> IELTS
         </h1>
-        <p className="mt-1 text-sm text-slate-400">FSRS spaced repetition � IELTS 9.0 Reading</p>
+        <p className="mt-1 text-sm text-slate-400">FSRS spaced repetition · IELTS 9.0 Reading</p>
       </header>
 
       <main>{children}</main>

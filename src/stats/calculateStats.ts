@@ -51,8 +51,8 @@ export function formatDateLabel(dateStr: string): string {
   yesterday.setDate(yesterday.getDate() - 1)
   const yesterdayStr = yesterday.toLocaleDateString('en-CA')
 
-  if (dateStr === today) return 'H?m nay'
-  if (dateStr === yesterdayStr) return 'H?m qua'
+  if (dateStr === today) return 'Hôm nay'
+  if (dateStr === yesterdayStr) return 'Hôm qua'
 
   const [y, m, d] = dateStr.split('-')
   return `${d}/${m}/${y}`

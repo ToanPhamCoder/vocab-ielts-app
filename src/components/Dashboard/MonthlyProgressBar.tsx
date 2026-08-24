@@ -7,8 +7,8 @@ interface MonthlyProgressBarProps {
 
 export function MonthlyProgressBar({ mastered, target }: MonthlyProgressBarProps) {
   const data = [
-    { name: '?? thu?c', value: mastered, fill: '#22c55e' },
-    { name: 'M?c ti?u', value: Math.max(0, target - mastered), fill: '#334155' },
+    { name: 'Đã thuộc', value: mastered, fill: '#22c55e' },
+    { name: 'Mục tiêu', value: Math.max(0, target - mastered), fill: '#334155' },
   ]
 
   const pct = target > 0 ? Math.min(100, Math.round((mastered / target) * 100)) : 0
@@ -16,9 +16,9 @@ export function MonthlyProgressBar({ mastered, target }: MonthlyProgressBarProps
   return (
     <div>
       <div className="mb-2 flex justify-between text-sm">
-        <span className="text-slate-400">Ti?n ?? th?ng n?y</span>
+        <span className="text-slate-400">Tiến độ tháng này</span>
         <span className="font-medium text-slate-200">
-          {mastered} / {target} t? ({pct}%)
+          {mastered} / {target} từ ({pct}%)
         </span>
       </div>
       <ResponsiveContainer width="100%" height={160}>

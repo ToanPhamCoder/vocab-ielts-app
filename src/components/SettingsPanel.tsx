@@ -12,7 +12,7 @@ export function SettingsPanel() {
     void getSettings().then(setSettings)
   }, [])
 
-  if (!settings) return <div className="text-slate-400">?ang t?i...</div>
+  if (!settings) return <div className="text-slate-400">Đang tải...</div>
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -36,10 +36,10 @@ export function SettingsPanel() {
   return (
     <form onSubmit={(e) => void handleSave(e)} className="space-y-6">
       <section className="rounded-xl border border-slate-700 bg-slate-800/40 p-5">
-        <h2 className="mb-4 text-lg font-semibold text-white">M?c ti?u IELTS</h2>
+        <h2 className="mb-4 text-lg font-semibold text-white">Mục tiêu IELTS</h2>
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm text-slate-300">Ng?y thi IELTS</label>
+            <label className="mb-1 block text-sm text-slate-300">Ngày thi IELTS</label>
             <input
               type="date"
               className={inputClass}
@@ -49,7 +49,7 @@ export function SettingsPanel() {
           </div>
           <div>
             <label className="mb-1 block text-sm text-slate-300">
-              S? t? ?? bi?t (baseline word families)
+              Số từ đã biết (baseline word families)
             </label>
             <input
               type="number"
@@ -63,7 +63,7 @@ export function SettingsPanel() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-slate-300">M?c ti?u t?ng (word families)</label>
+            <label className="mb-1 block text-sm text-slate-300">Mục tiêu tổng (word families)</label>
             <input
               type="number"
               min={1000}
@@ -77,12 +77,12 @@ export function SettingsPanel() {
           </div>
           <div className="rounded-lg bg-slate-900/60 p-4 text-sm">
             <p className="text-slate-300">
-              M?c ti?u th?ng: <strong className="text-white">{monthlyTarget}</strong> t? (~
-              {dailyWords}/ng?y)
+              Mục tiêu tháng: <strong className="text-white">{monthlyTarget}</strong> từ (~
+              {dailyWords}/ngày)
             </p>
             {aggressive && (
               <p className="mt-2 text-amber-400">
-                M?c ti?u kh? cao! H?y t?ng th?i gian h?c ho?c k?o d?i l?ch thi.
+                Mục tiêu khá cao! Hãy tăng thời gian học hoặc kéo dài lịch thi.
               </p>
             )}
           </div>
@@ -90,11 +90,11 @@ export function SettingsPanel() {
       </section>
 
       <section className="rounded-xl border border-slate-700 bg-slate-800/40 p-5">
-        <h2 className="mb-4 text-lg font-semibold text-white">Nh?c ?n t?p</h2>
+        <h2 className="mb-4 text-lg font-semibold text-white">Nhắc ôn tập</h2>
         <div className="space-y-4">
           <div>
             <label className="mb-1 block text-sm text-slate-300">
-              Nh?c m?i (ph?t) khi c? t? due
+              Nhắc mỗi (phút) khi có từ due
             </label>
             <input
               type="number"
@@ -108,7 +108,7 @@ export function SettingsPanel() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-slate-300">Gi? ?n ??u ng?y</label>
+            <label className="mb-1 block text-sm text-slate-300">Giờ ôn đầu ngày</label>
             <input
               type="time"
               className={inputClass}
@@ -121,7 +121,7 @@ export function SettingsPanel() {
             onClick={() => void handleEnableNotifications()}
             className="rounded-lg border border-blue-500/50 px-4 py-2 text-sm text-blue-300 hover:bg-blue-500/10"
           >
-            B?t th?ng b?o tr?nh duy?t
+            Bật thông báo trình duyệt
           </button>
         </div>
       </section>
@@ -130,7 +130,7 @@ export function SettingsPanel() {
         type="submit"
         className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white hover:bg-blue-500"
       >
-        {saved ? '?? l?u!' : 'L?u c?i ??t'}
+        {saved ? 'Đã lưu!' : 'Lưu cài đặt'}
       </button>
     </form>
   )

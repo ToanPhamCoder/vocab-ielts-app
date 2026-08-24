@@ -39,10 +39,10 @@ export function AddWordForm({ onSuccess }: AddWordFormProps) {
       setPhonetic('')
       setPartOfSpeech('')
       setTags('')
-      setMessage('?? th?m t? v?ng!')
+      setMessage('Đã thêm từ vựng!')
       onSuccess?.()
     } catch {
-      setMessage('Kh?ng th? th?m t?. Th? l?i.')
+      setMessage('Không thể thêm từ. Thử lại.')
     } finally {
       setLoading(false)
     }
@@ -54,7 +54,7 @@ export function AddWordForm({ onSuccess }: AddWordFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-300">T? v?ng *</label>
+        <label className="mb-1 block text-sm font-medium text-slate-300">Từ vựng *</label>
         <input
           className={inputClass}
           value={word}
@@ -64,27 +64,27 @@ export function AddWordForm({ onSuccess }: AddWordFormProps) {
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-300">Ngh?a *</label>
+        <label className="mb-1 block text-sm font-medium text-slate-300">Nghĩa *</label>
         <input
           className={inputClass}
           value={meaning}
           onChange={(e) => setMeaning(e.target.value)}
-          placeholder="c? m?t ? kh?p n?i"
+          placeholder="có mặt ở khắp nơi"
           required
         />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300">Phi?n ?m</label>
+          <label className="mb-1 block text-sm font-medium text-slate-300">Phiên âm</label>
           <input
             className={inputClass}
             value={phonetic}
             onChange={(e) => setPhonetic(e.target.value)}
-            placeholder="/ju??b?kw?t?s/"
+            placeholder="/juːˈbɪkwɪtəs/"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300">Lo?i t?</label>
+          <label className="mb-1 block text-sm font-medium text-slate-300">Loại từ</label>
           <input
             className={inputClass}
             value={partOfSpeech}
@@ -94,7 +94,7 @@ export function AddWordForm({ onSuccess }: AddWordFormProps) {
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-300">V? d?</label>
+        <label className="mb-1 block text-sm font-medium text-slate-300">Ví dụ</label>
         <textarea
           className={`${inputClass} min-h-[80px] resize-y`}
           value={example}
@@ -108,11 +108,11 @@ export function AddWordForm({ onSuccess }: AddWordFormProps) {
           className={inputClass}
           value={tags}
           onChange={(e) => setTags(e.target.value)}
-          placeholder="AWL, academic (ph?n c?ch b?ng d?u ph?y)"
+          placeholder="AWL, academic (phân cách bằng dấu phẩy)"
         />
       </div>
       {message && (
-        <p className={`text-sm ${message.includes('??') ? 'text-green-400' : 'text-red-400'}`}>
+        <p className={`text-sm ${message.includes('Đã') ? 'text-green-400' : 'text-red-400'}`}>
           {message}
         </p>
       )}
@@ -121,7 +121,7 @@ export function AddWordForm({ onSuccess }: AddWordFormProps) {
         disabled={loading}
         className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
       >
-        {loading ? '?ang l?u...' : 'Th?m t? v?ng'}
+        {loading ? 'Đang lưu...' : 'Thêm từ vựng'}
       </button>
     </form>
   )

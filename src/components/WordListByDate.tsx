@@ -51,7 +51,7 @@ export function WordListByDate() {
   }
 
   if (!words) {
-    return <div className="text-slate-400">?ang t?i...</div>
+    return <div className="text-slate-400">Đang tải...</div>
   }
 
   return (
@@ -59,7 +59,7 @@ export function WordListByDate() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <input
           className="flex-1 rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-          placeholder="T?m t?, ngh?a, tag..."
+          placeholder="Tìm từ, nghĩa, tag..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -68,7 +68,7 @@ export function WordListByDate() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
-          <option value="all">T?t c? tr?ng th?i</option>
+          <option value="all">Tất cả trạng thái</option>
           <option value="New">New</option>
           <option value="Learning">Learning</option>
           <option value="Review">Review</option>
@@ -79,7 +79,7 @@ export function WordListByDate() {
 
       {grouped.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-600 p-8 text-center text-slate-400">
-          Ch?a c? t? v?ng n?o. H?y th?m t? m?i!
+          Chưa có từ vựng nào. Hãy thêm từ mới!
         </p>
       ) : (
         grouped.map(([date, items]) => (
@@ -90,9 +90,9 @@ export function WordListByDate() {
               className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-slate-700/30"
             >
               <span className="font-semibold text-slate-100">
-                {formatDateLabel(date)} ({items.length} t?)
+                {formatDateLabel(date)} ({items.length} từ)
               </span>
-              <span className="text-slate-400">{collapsed.has(date) ? '?' : '?'}</span>
+              <span className="text-slate-400">{collapsed.has(date) ? '▶' : '▼'}</span>
             </button>
             {!collapsed.has(date) && (
               <ul className="divide-y divide-slate-700/50">
@@ -134,7 +134,7 @@ export function WordListByDate() {
                         onClick={() => void deleteWord(w.id)}
                         className="shrink-0 text-sm text-red-400 hover:text-red-300"
                       >
-                        X?a
+                        Xóa
                       </button>
                     </li>
                   )

@@ -44,10 +44,10 @@ export function ReadinessScore({
         {totalKnown.toLocaleString()} / {target.toLocaleString()} word families
       </p>
       <p className="mt-1 text-center text-sm text-amber-400">
-        C?n th?m ~{wordsNeeded.toLocaleString()} t?
+        Cần thêm ~{wordsNeeded.toLocaleString()} từ
       </p>
       <p className="mt-2 text-xs text-slate-500">
-        Retention rate (7 ng?y): {retentionRate.toFixed(0)}%
+        Retention rate (7 ngày): {retentionRate.toFixed(0)}%
       </p>
     </div>
   )

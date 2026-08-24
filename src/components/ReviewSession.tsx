@@ -67,14 +67,14 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
   }
 
   if (loading) {
-    return <div className="py-12 text-center text-slate-400">?ang chu?n b? phi?n ?n...</div>
+    return <div className="py-12 text-center text-slate-400">Đang chuẩn bị phiên ôn...</div>
   }
 
   if (queue.length === 0) {
     return (
       <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-8 text-center">
-        <p className="text-lg text-slate-200">Kh?ng c? t? c?n ?n t?p!</p>
-        <p className="mt-2 text-sm text-slate-400">Th?m t? m?i ho?c quay l?i sau.</p>
+        <p className="text-lg text-slate-200">Không có từ cần ôn tập!</p>
+        <p className="mt-2 text-sm text-slate-400">Thêm từ mới hoặc quay lại sau.</p>
       </div>
     )
   }
@@ -82,24 +82,24 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
   if (summary) {
     return (
       <div className="rounded-xl border border-green-700/50 bg-green-900/20 p-8 text-center">
-        <h2 className="text-2xl font-bold text-green-300">Ho?n th?nh!</h2>
-        <p className="mt-4 text-slate-200">?? ?n {summary.total} t?</p>
-        <p className="mt-2 text-green-400">{summary.good} t? tr? l?i t?t</p>
-        <p className="mt-1 text-red-400">{summary.again} t? c?n ?n l?i</p>
+        <h2 className="text-2xl font-bold text-green-300">Hoàn thành!</h2>
+        <p className="mt-4 text-slate-200">Đã ôn {summary.total} từ</p>
+        <p className="mt-2 text-green-400">{summary.good} từ trả lời tốt</p>
+        <p className="mt-1 text-red-400">{summary.again} từ cần ôn lại</p>
         <div className="mt-6 flex justify-center gap-3">
           <button
             type="button"
             onClick={() => void loadQueue()}
             className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500"
           >
-            ?n ti?p
+            Ôn tiếp
           </button>
           <button
             type="button"
             onClick={onComplete}
             className="rounded-lg border border-slate-600 px-4 py-2 font-medium text-slate-200 hover:bg-slate-700"
           >
-            V? trang ch?
+            Về trang chủ
           </button>
         </div>
       </div>
@@ -129,7 +129,7 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
       >
         <div className={`card-inner relative min-h-[280px] ${flipped ? 'flipped' : ''}`}>
           <div className="card-front absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-slate-600 bg-slate-800/80 p-8 shadow-xl">
-            <p className="text-sm uppercase tracking-widest text-slate-400">T? v?ng</p>
+            <p className="text-sm uppercase tracking-widest text-slate-400">Từ vựng</p>
             <h2 className="mt-4 text-4xl font-bold text-white">{current.word}</h2>
             {current.phonetic && (
               <p className="mt-2 text-lg text-slate-400">{current.phonetic}</p>
@@ -139,10 +139,10 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
                 {current.partOfSpeech}
               </span>
             )}
-            <p className="mt-8 text-sm text-slate-500">Nh?n ?? xem ngh?a</p>
+            <p className="mt-8 text-sm text-slate-500">Nhấn để xem nghĩa</p>
           </div>
           <div className="card-back absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-blue-600/50 bg-slate-800/80 p-8 shadow-xl">
-            <p className="text-sm uppercase tracking-widest text-slate-400">Ngh?a</p>
+            <p className="text-sm uppercase tracking-widest text-slate-400">Nghĩa</p>
             <p className="mt-4 text-center text-2xl text-white">{current.meaning}</p>
             {current.example && (
               <p className="mt-4 text-center text-sm italic text-slate-400">{current.example}</p>

@@ -29,7 +29,7 @@ export function VocabTrendLine({ data }: VocabTrendLineProps) {
           stroke="#a855f7"
           strokeWidth={2}
           dot={{ fill: '#a855f7', r: 3 }}
-          name="T? m?i"
+          name="Từ mới"
         />
       </LineChart>
     </ResponsiveContainer>

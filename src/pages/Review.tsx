@@ -6,7 +6,7 @@ export function Review() {
 
   return (
     <div>
-      <h2 className="mb-6 text-xl font-semibold text-white">?n t?p FSRS</h2>
+      <h2 className="mb-6 text-xl font-semibold text-white">Ôn tập FSRS</h2>
       <ReviewSession onComplete={() => navigate('/')} />
     </div>
   )

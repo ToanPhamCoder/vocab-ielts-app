@@ -15,7 +15,7 @@ export function Home() {
   }, [stats])
 
   if (!stats) {
-    return <div className="text-slate-400">?ang t?i th?ng k?...</div>
+    return <div className="text-slate-400">Đang tải thống kê...</div>
   }
 
   return (
@@ -26,7 +26,7 @@ export function Home() {
           className="block rounded-xl border border-blue-500/40 bg-blue-900/30 p-4 transition hover:bg-blue-900/50"
         >
           <p className="font-semibold text-blue-300">
-            {dueCount} t? c?n ?n t?p ngay ?
+            {dueCount} từ cần ôn tập ngay →
           </p>
         </Link>
       )}
@@ -43,7 +43,7 @@ export function Home() {
         </div>
 
         <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-5">
-          <h2 className="mb-2 text-lg font-semibold text-white">Tr?ng th?i t? v?ng</h2>
+          <h2 className="mb-2 text-lg font-semibold text-white">Trạng thái từ vựng</h2>
           <StatusDonut data={stats.statusDistribution} />
           <div className="mt-2 flex flex-wrap justify-center gap-3 text-xs">
             {stats.statusDistribution.map((d) => (
@@ -57,18 +57,18 @@ export function Home() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="T?ng t?" value={stats.total} color="text-white" />
-        <StatCard label="?? thu?c" value={stats.mastered} color="text-green-400" />
-        <StatCard label="Streak" value={`${stats.streak} ng?y`} color="text-amber-400" />
+        <StatCard label="Tổng từ" value={stats.total} color="text-white" />
+        <StatCard label="Đã thuộc" value={stats.mastered} color="text-green-400" />
+        <StatCard label="Streak" value={`${stats.streak} ngày`} color="text-amber-400" />
       </div>
 
       <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-5">
-        <h2 className="mb-4 text-lg font-semibold text-white">Ti?n ?? th?ng</h2>
+        <h2 className="mb-4 text-lg font-semibold text-white">Tiến độ tháng</h2>
         <MonthlyProgressBar mastered={stats.masteredThisMonth} target={stats.monthlyTarget} />
       </div>
 
       <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-5">
-        <h2 className="mb-4 text-lg font-semibold text-white">T? m?i (30 ng?y)</h2>
+        <h2 className="mb-4 text-lg font-semibold text-white">Từ mới (30 ngày)</h2>
         <VocabTrendLine data={stats.addedTrend} />
       </div>
     </div>
