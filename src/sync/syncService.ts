@@ -80,11 +80,26 @@ function settingsToRow(userId: string, s: UserSettings) {
     onboarding_complete: s.onboardingComplete,
     streak: s.streak,
     last_streak_date: s.lastStreakDate ?? null,
+    game_state: {
+      xp: s.xp,
+      dailyNewGoal: s.dailyNewGoal,
+      dailyGoalDate: s.dailyGoalDate ?? null,
+      dailyDueTarget: s.dailyDueTarget,
+      dailyDueReviewed: s.dailyDueReviewed,
+      dailyNewAdded: s.dailyNewAdded,
+      dailyGoalComplete: s.dailyGoalComplete,
+      clearDueStreak: s.clearDueStreak,
+      lastClearDueDate: s.lastClearDueDate ?? null,
+      consecutiveNonEasy: s.consecutiveNonEasy,
+      unlockedAchievements: s.unlockedAchievements,
+      lastLevel: s.lastLevel,
+    },
     updated_at: new Date().toISOString(),
   }
 }
 
 function rowToSettings(row: Record<string, unknown>): UserSettings {
+  const game = (row.game_state as Record<string, unknown> | null) ?? {}
   return {
     id: 'settings',
     examDate: row.exam_date as string,
@@ -96,6 +111,20 @@ function rowToSettings(row: Record<string, unknown>): UserSettings {
     onboardingComplete: Boolean(row.onboarding_complete),
     streak: Number(row.streak),
     lastStreakDate: (row.last_streak_date as string | null) ?? undefined,
+    xp: Number(game.xp ?? 0),
+    dailyNewGoal: Number(game.dailyNewGoal ?? 10),
+    dailyGoalDate: (game.dailyGoalDate as string | null) ?? undefined,
+    dailyDueTarget: Number(game.dailyDueTarget ?? 0),
+    dailyDueReviewed: Number(game.dailyDueReviewed ?? 0),
+    dailyNewAdded: Number(game.dailyNewAdded ?? 0),
+    dailyGoalComplete: Boolean(game.dailyGoalComplete),
+    clearDueStreak: Number(game.clearDueStreak ?? 0),
+    lastClearDueDate: (game.lastClearDueDate as string | null) ?? undefined,
+    consecutiveNonEasy: Number(game.consecutiveNonEasy ?? 0),
+    unlockedAchievements: Array.isArray(game.unlockedAchievements)
+      ? (game.unlockedAchievements as string[])
+      : [],
+    lastLevel: Number(game.lastLevel ?? 1),
   }
 }
 
@@ -207,7 +236,12 @@ export async function syncSettings(settings: UserSettings): Promise<void> {
   try {
     const userId = await requireUserId()
     const { error } = await supabase.from('user_settings').upsert(settingsToRow(userId, settings))
-    if (error) console.error('syncSettings', error)
+    if (error) {
+      const { game_state: _game, ...rest } = settingsToRow(userId, settings)
+      void _game
+      const retry = await supabase.from('user_settings').upsert(rest)
+      if (retry.error) console.error('syncSettings', retry.error)
+    }
   } catch (e) {
     console.error('syncSettings', e)
   }

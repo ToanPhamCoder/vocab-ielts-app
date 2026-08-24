@@ -1,25 +1,45 @@
 import { Link } from 'react-router-dom'
-import { useStats, countDueWords } from '../db/hooks'
+import { useStats, countDueWords, useSettings, saveSettings } from '../db/hooks'
 import { StatusDonut } from '../components/Dashboard/StatusDonut'
 import { MonthlyProgressBar } from '../components/Dashboard/MonthlyProgressBar'
 import { ReadinessScore } from '../components/Dashboard/ReadinessScore'
 import { VocabTrendLine } from '../components/Dashboard/VocabTrendLine'
+import { SaiyanHero } from '../components/SaiyanHero'
+import { ensureDaily } from '../game/progress'
 import { useEffect, useState } from 'react'
 
 export function Home() {
   const stats = useStats()
+  const settings = useSettings()
   const [dueCount, setDueCount] = useState(0)
 
   useEffect(() => {
     void countDueWords().then(setDueCount)
   }, [stats])
 
-  if (!stats) {
+  useEffect(() => {
+    if (!settings) return
+    void ensureDaily(settings).then((next) => {
+      if (next.dailyGoalDate !== settings.dailyGoalDate) void saveSettings(next)
+    })
+  }, [settings])
+
+  if (!stats || !settings) {
     return <div className="text-slate-400">Đang tải thống kê...</div>
   }
 
   return (
     <div className="space-y-6">
+      <SaiyanHero
+        xp={stats.xp}
+        streak={stats.streak}
+        dueReviewed={stats.dailyDueReviewed}
+        dueTarget={stats.dailyDueTarget}
+        newAdded={stats.dailyNewAdded}
+        newGoal={stats.dailyNewGoal}
+        dailyComplete={stats.dailyGoalComplete}
+      />
+
       {dueCount > 0 && (
         <Link
           to="/review"

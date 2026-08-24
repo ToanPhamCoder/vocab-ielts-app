@@ -43,6 +43,18 @@ export interface UserSettings {
   onboardingComplete: boolean
   streak: number
   lastStreakDate?: string
+  xp: number
+  dailyNewGoal: number
+  dailyGoalDate?: string
+  dailyDueTarget: number
+  dailyDueReviewed: number
+  dailyNewAdded: number
+  dailyGoalComplete: boolean
+  clearDueStreak: number
+  lastClearDueDate?: string
+  consecutiveNonEasy: number
+  unlockedAchievements: string[]
+  lastLevel: number
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -54,6 +66,16 @@ export const DEFAULT_SETTINGS: UserSettings = {
   dailyReviewTime: '08:00',
   onboardingComplete: false,
   streak: 0,
+  xp: 0,
+  dailyNewGoal: 10,
+  dailyDueTarget: 0,
+  dailyDueReviewed: 0,
+  dailyNewAdded: 0,
+  dailyGoalComplete: false,
+  clearDueStreak: 0,
+  consecutiveNonEasy: 0,
+  unlockedAchievements: [],
+  lastLevel: 1,
 }
 
 export class VocabDatabase extends Dexie {

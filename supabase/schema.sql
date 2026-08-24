@@ -11,6 +11,7 @@ create table if not exists public.user_settings (
   onboarding_complete boolean not null default false,
   streak int not null default 0,
   last_streak_date date,
+  game_state jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );
 
@@ -66,3 +67,5 @@ create policy "words_own" on public.words
 drop policy if exists "logs_own" on public.review_logs;
 create policy "logs_own" on public.review_logs
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table public.user_settings add column if not exists game_state jsonb not null default '{}'::jsonb;

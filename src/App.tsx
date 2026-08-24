@@ -10,6 +10,7 @@ import { AddWord } from './pages/AddWord'
 import { Words } from './pages/Words'
 import { Review } from './pages/Review'
 import { Settings } from './pages/Settings'
+import { Dojo } from './pages/Dojo'
 import { getSettings } from './db/hooks'
 import {
   registerNotificationClickHandler,
@@ -78,6 +79,7 @@ function AppInner() {
           <Route path="/add" element={<AddWord />} />
           <Route path="/words" element={<Words />} />
           <Route path="/review" element={<Review />} />
+          <Route path="/dojo" element={<Dojo />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Layout>

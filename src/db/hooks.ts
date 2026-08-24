@@ -18,6 +18,7 @@ import {
   syncSettings,
   syncWord,
 } from '../sync/syncService'
+import { applyNewWordXp, applyReviewXp, type GameTick } from '../game/progress'
 
 export function useWords() {
   return useLiveQuery(() => db.words.orderBy('addedDate').reverse().toArray(), [])
@@ -30,7 +31,7 @@ export function useWord(id: string | undefined) {
 export function useSettings() {
   return useLiveQuery(async () => {
     const settings = await db.settings.get('settings')
-    return settings ?? DEFAULT_SETTINGS
+    return settings ? { ...DEFAULT_SETTINGS, ...settings, id: 'settings' as const } : DEFAULT_SETTINGS
   }, [])
 }
 
@@ -42,9 +43,13 @@ export function useReviewLogs(days = 30) {
   }, [days])
 }
 
+function normalizeSettings(s: UserSettings): UserSettings {
+  return { ...DEFAULT_SETTINGS, ...s, id: 'settings' }
+}
+
 export async function getSettings(): Promise<UserSettings> {
   const settings = await db.settings.get('settings')
-  if (settings) return settings
+  if (settings) return normalizeSettings(settings)
   await db.settings.put(DEFAULT_SETTINGS)
   return DEFAULT_SETTINGS
 }
@@ -82,6 +87,7 @@ export async function addWord(data: {
 
   await db.words.add(vocabWord)
   void syncWord(vocabWord)
+  void applyNewWordXp()
   return vocabWord
 }
 
@@ -95,7 +101,8 @@ export async function submitReview(
   word: VocabWord,
   rating: ReviewRating,
   responseTimeMs: number,
-): Promise<VocabWord> {
+): Promise<{ word: VocabWord; game: GameTick }> {
+  const wasDue = word.due <= new Date() || word.state === 'New'
   const updated = reviewWord(word, rating)
   await db.words.put(updated)
 
@@ -109,8 +116,9 @@ export async function submitReview(
   await db.reviewLogs.add(log)
   void syncWord(updated)
   void syncReviewLog(log)
+  const game = await applyReviewXp(rating, wasDue)
 
-  return updated
+  return { word: updated, game }
 }
 
 export async function getDueWords(now = new Date()): Promise<VocabWord[]> {
@@ -135,13 +143,11 @@ export async function buildReviewQueue(now = new Date()): Promise<VocabWord[]> {
     if (word.due <= now) {
       if (word.due.toLocaleDateString('en-CA') < today) {
         overdue.push(word)
+      } else if (word.state === 'Learning' || word.state === 'Relearning') {
+        learning.push(word)
       } else {
         dueToday.push(word)
       }
-      continue
-    }
-    if (word.state === 'Learning' || word.state === 'Relearning') {
-      learning.push(word)
     }
   }
 
@@ -151,13 +157,13 @@ export async function buildReviewQueue(now = new Date()): Promise<VocabWord[]> {
     ...overdue.sort(sortByDue),
     ...dueToday.sort(sortByDue),
     ...learning.sort(sortByDue),
-    ...newWords.sort((a, b) => b.addedDate.localeCompare(a.addedDate)),
+    ...newWords.sort((a, b) => b.addedDate.localeCompare(a.addedDate)).slice(0, 8),
   ]
 }
 
 export async function countDueWords(now = new Date()): Promise<number> {
-  const queue = await buildReviewQueue(now)
-  return queue.length
+  const all = await db.words.toArray()
+  return all.filter((w) => w.due <= now).length
 }
 
 export async function getWordsGroupedByDate(): Promise<Map<string, VocabWord[]>> {
@@ -267,6 +273,13 @@ export function useStats() {
     monthlyTarget,
     masteredThisMonth,
     streak: settings.streak,
+    xp: settings.xp ?? 0,
+    dailyNewGoal: settings.dailyNewGoal ?? 10,
+    dailyDueTarget: settings.dailyDueTarget ?? 0,
+    dailyDueReviewed: settings.dailyDueReviewed ?? 0,
+    dailyNewAdded: settings.dailyNewAdded ?? 0,
+    dailyGoalComplete: Boolean(settings.dailyGoalComplete),
+    unlockedAchievements: settings.unlockedAchievements ?? [],
     targetVocabSize: settings.targetVocabSize,
     addedTrend: Array.from(addedByDate.entries()).map(([date, count]) => ({
       date: date.slice(5),

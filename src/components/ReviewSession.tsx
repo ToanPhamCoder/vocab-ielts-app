@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { buildReviewQueue, submitReview, updateStreak } from '../db/hooks'
+import { buildReviewQueue, getSettings, submitReview } from '../db/hooks'
 import type { ReviewRating, VocabWord } from '../db/schema'
 import { ratingLabel } from '../srs/fsrsService'
+import { LevelUpModal } from './LevelUpModal'
 
 interface ReviewSessionProps {
   onComplete?: () => void
@@ -11,6 +12,7 @@ interface SessionSummary {
   total: number
   good: number
   again: number
+  xp: number
 }
 
 export function ReviewSession({ onComplete }: ReviewSessionProps) {
@@ -20,7 +22,8 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
   const [startTime, setStartTime] = useState(Date.now())
   const [loading, setLoading] = useState(true)
   const [summary, setSummary] = useState<SessionSummary | null>(null)
-  const [stats, setStats] = useState({ good: 0, again: 0 })
+  const [stats, setStats] = useState({ good: 0, again: 0, xp: 0 })
+  const [levelUpXp, setLevelUpXp] = useState<number | null>(null)
 
   const loadQueue = useCallback(async () => {
     setLoading(true)
@@ -30,7 +33,7 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
     setFlipped(false)
     setStartTime(Date.now())
     setSummary(null)
-    setStats({ good: 0, again: 0 })
+    setStats({ good: 0, again: 0, xp: 0 })
     setLoading(false)
   }, [])
 
@@ -43,20 +46,22 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
   async function handleRating(rating: ReviewRating) {
     if (!current) return
     const responseTimeMs = Date.now() - startTime
-    await submitReview(current, rating, responseTimeMs)
+    const { game } = await submitReview(current, rating, responseTimeMs)
+    if (game.leveledUp) setLevelUpXp((await getSettings()).xp)
 
     const nextStats = {
       good: stats.good + (rating >= 3 ? 1 : 0),
       again: stats.again + (rating === 1 ? 1 : 0),
+      xp: stats.xp + game.xpGained,
     }
     setStats(nextStats)
 
     if (index + 1 >= queue.length) {
-      await updateStreak()
       setSummary({
         total: queue.length,
         good: nextStats.good,
         again: nextStats.again,
+        xp: nextStats.xp,
       })
       return
     }
@@ -82,8 +87,12 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
   if (summary) {
     return (
       <div className="rounded-xl border border-green-700/50 bg-green-900/20 p-8 text-center">
+        {levelUpXp !== null && (
+          <LevelUpModal xp={levelUpXp} onClose={() => setLevelUpXp(null)} />
+        )}
         <h2 className="text-2xl font-bold text-green-300">Hoàn thành!</h2>
         <p className="mt-4 text-slate-200">Đã ôn {summary.total} từ</p>
+        <p className="mt-2 text-amber-300">+{summary.xp} XP</p>
         <p className="mt-2 text-green-400">{summary.good} từ trả lời tốt</p>
         <p className="mt-1 text-red-400">{summary.again} từ cần ôn lại</p>
         <div className="mt-6 flex justify-center gap-3">
@@ -108,6 +117,9 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
+      {levelUpXp !== null && (
+        <LevelUpModal xp={levelUpXp} onClose={() => setLevelUpXp(null)} />
+      )}
       <div className="flex items-center justify-between text-sm text-slate-400">
         <span>
           {index + 1} / {queue.length}

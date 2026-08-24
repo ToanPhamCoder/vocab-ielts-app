@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
-import { getSettings, saveSettings } from '../db/hooks'
+import { countDueWords, getSettings, saveSettings } from '../db/hooks'
 import type { UserSettings } from '../db/schema'
-import { requestNotificationPermission } from '../notifications/notifyService'
+import {
+  getNotificationPermission,
+  requestNotificationPermission,
+  sendTestNotification,
+  startNotificationPolling,
+} from '../notifications/notifyService'
 import { isAggressiveTarget, calculateMonthlyTarget } from '../stats/calculateStats'
 import { useAuth } from '../auth/AuthContext'
 
@@ -10,9 +15,13 @@ export function SettingsPanel() {
   const [settings, setSettings] = useState<UserSettings | null>(null)
   const [saved, setSaved] = useState(false)
   const [syncMsg, setSyncMsg] = useState('')
+  const [notifPerm, setNotifPerm] = useState(getNotificationPermission())
+  const [dueCount, setDueCount] = useState(0)
+  const [notifMsg, setNotifMsg] = useState('')
 
   useEffect(() => {
     void getSettings().then(setSettings)
+    void countDueWords().then(setDueCount)
   }, [])
 
   if (!settings) return <div className="text-slate-400">Đang tải...</div>
@@ -26,7 +35,20 @@ export function SettingsPanel() {
   }
 
   async function handleEnableNotifications() {
-    await requestNotificationPermission()
+    const perm = await requestNotificationPermission()
+    setNotifPerm(perm)
+    if (perm === 'granted') {
+      startNotificationPolling()
+      setNotifMsg('Đã bật thông báo!')
+    } else {
+      setNotifMsg('Bị từ chối. Vào cài đặt Android → VocabIELTS → Thông báo → Cho phép.')
+    }
+  }
+
+  async function handleTestNotification() {
+    const result = await sendTestNotification()
+    setNotifPerm(getNotificationPermission())
+    setNotifMsg(result.message)
   }
 
   async function handleSync() {
@@ -113,6 +135,19 @@ export function SettingsPanel() {
               }
             />
           </div>
+          <div>
+            <label className="mb-1 block text-sm text-slate-300">Daily goal — từ mới mỗi ngày</label>
+            <input
+              type="number"
+              min={0}
+              max={50}
+              className={inputClass}
+              value={settings.dailyNewGoal}
+              onChange={(e) =>
+                setSettings({ ...settings, dailyNewGoal: Number(e.target.value) })
+              }
+            />
+          </div>
           <div className="rounded-lg bg-slate-900/60 p-4 text-sm">
             <p className="text-slate-300">
               Mục tiêu tháng: <strong className="text-white">{monthlyTarget}</strong> từ (~
@@ -161,6 +196,26 @@ export function SettingsPanel() {
           >
             Bật thông báo trình duyệt
           </button>
+          <button
+            type="button"
+            onClick={() => void handleTestNotification()}
+            className="ml-2 rounded-lg border border-green-500/50 px-4 py-2 text-sm text-green-300 hover:bg-green-500/10"
+          >
+            Gửi thông báo test
+          </button>
+          <div className="rounded-lg bg-slate-900/60 p-3 text-xs text-slate-400 space-y-1">
+            <p>
+              Quyền web:{' '}
+              <span className={notifPerm === 'granted' ? 'text-green-400' : 'text-amber-400'}>
+                {notifPerm === 'granted' ? 'Đã bật' : notifPerm === 'denied' ? 'Bị chặn' : 'Chưa bật'}
+              </span>
+            </p>
+            <p>Từ đang due: <span className="text-white">{dueCount}</span></p>
+            <p className="text-amber-400/80">
+              App phải đang mở (hoặc chạy nền). Tắt &quot;Tạm dừng hoạt động nếu không dùng&quot; trong cài đặt Android.
+            </p>
+          </div>
+          {notifMsg && <p className="text-sm text-blue-300">{notifMsg}</p>}
         </div>
       </section>
 

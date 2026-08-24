@@ -17,6 +17,13 @@ export async function showReviewNotification(count: number): Promise<void> {
 
   const title = count === 1 ? '1 từ cần ôn tập' : `${count} từ cần ôn tập`
   const body = 'Mở app để bắt đầu phiên ôn tập FSRS'
+  await showNotification(title, body)
+  lastNotifiedAt = Date.now()
+}
+
+export async function showNotification(title: string, body: string): Promise<boolean> {
+  if (!('Notification' in window)) return false
+  if (Notification.permission !== 'granted') return false
 
   if ('serviceWorker' in navigator) {
     const reg = await navigator.serviceWorker.ready
@@ -30,8 +37,23 @@ export async function showReviewNotification(count: number): Promise<void> {
   } else {
     new Notification(title, { body, icon: '/icons/icon.svg' })
   }
+  return true
+}
 
-  lastNotifiedAt = Date.now()
+export async function sendTestNotification(): Promise<{ ok: boolean; message: string }> {
+  const perm = await requestNotificationPermission()
+  if (perm !== 'granted') {
+    return { ok: false, message: 'Chưa được cấp quyền thông báo. Hãy chọn Allow.' }
+  }
+  const sent = await showNotification('Vocab IELTS', 'Thông báo test — mọi thứ hoạt động!')
+  return sent
+    ? { ok: true, message: 'Đã gửi thông báo test!' }
+    : { ok: false, message: 'Không gửi được thông báo.' }
+}
+
+export function getNotificationPermission(): NotificationPermission | 'unsupported' {
+  if (!('Notification' in window)) return 'unsupported'
+  return Notification.permission
 }
 
 export async function checkAndNotify(): Promise<number> {
