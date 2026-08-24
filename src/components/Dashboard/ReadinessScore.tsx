@@ -1,6 +1,8 @@
 interface ReadinessScoreProps {
   score: number
   totalKnown: number
+  baseline: number
+  masteredInApp: number
   target: number
   wordsNeeded: number
   retentionRate: number
@@ -9,6 +11,8 @@ interface ReadinessScoreProps {
 export function ReadinessScore({
   score,
   totalKnown,
+  baseline,
+  masteredInApp,
   target,
   wordsNeeded,
   retentionRate,
@@ -43,10 +47,20 @@ export function ReadinessScore({
       <p className="mt-1 text-center text-sm text-slate-400">
         {totalKnown.toLocaleString()} / {target.toLocaleString()} word families
       </p>
-      <p className="mt-1 text-center text-sm text-amber-400">
+      <div className="mt-3 w-full space-y-1 rounded-lg bg-slate-900/60 px-3 py-2 text-xs text-slate-400">
+        <div className="flex justify-between gap-2">
+          <span>Ước tính ban đầu (baseline)</span>
+          <span className="text-slate-200">{baseline.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between gap-2">
+          <span>Đã thuộc trong app</span>
+          <span className="text-green-400">{masteredInApp.toLocaleString()}</span>
+        </div>
+      </div>
+      <p className="mt-2 text-center text-sm text-amber-400">
         Cần thêm ~{wordsNeeded.toLocaleString()} từ
       </p>
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-1 text-xs text-slate-500">
         Retention rate (7 ngày): {retentionRate.toFixed(0)}%
       </p>
     </div>

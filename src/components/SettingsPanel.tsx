@@ -3,10 +3,13 @@ import { getSettings, saveSettings } from '../db/hooks'
 import type { UserSettings } from '../db/schema'
 import { requestNotificationPermission } from '../notifications/notifyService'
 import { isAggressiveTarget, calculateMonthlyTarget } from '../stats/calculateStats'
+import { useAuth } from '../auth/AuthContext'
 
 export function SettingsPanel() {
+  const { user, signOut, refreshSync, syncing } = useAuth()
   const [settings, setSettings] = useState<UserSettings | null>(null)
   const [saved, setSaved] = useState(false)
+  const [syncMsg, setSyncMsg] = useState('')
 
   useEffect(() => {
     void getSettings().then(setSettings)
@@ -26,6 +29,18 @@ export function SettingsPanel() {
     await requestNotificationPermission()
   }
 
+  async function handleSync() {
+    setSyncMsg('')
+    try {
+      await refreshSync()
+      setSyncMsg('Đã đồng bộ!')
+      const s = await getSettings()
+      setSettings(s)
+    } catch {
+      setSyncMsg('Đồng bộ thất bại')
+    }
+  }
+
   const monthlyTarget = calculateMonthlyTarget(settings)
   const dailyWords = Math.ceil(monthlyTarget / 30)
   const aggressive = isAggressiveTarget(dailyWords)
@@ -35,6 +50,29 @@ export function SettingsPanel() {
 
   return (
     <form onSubmit={(e) => void handleSave(e)} className="space-y-6">
+      <section className="rounded-xl border border-slate-700 bg-slate-800/40 p-5">
+        <h2 className="mb-4 text-lg font-semibold text-white">Tài khoản</h2>
+        <p className="text-sm text-slate-300">{user?.email ?? 'Chưa đăng nhập'}</p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => void handleSync()}
+            disabled={syncing}
+            className="rounded-lg border border-blue-500/50 px-4 py-2 text-sm text-blue-300 hover:bg-blue-500/10 disabled:opacity-50"
+          >
+            {syncing ? 'Đang đồng bộ...' : 'Đồng bộ ngay'}
+          </button>
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="rounded-lg border border-red-500/40 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+          >
+            Đăng xuất
+          </button>
+        </div>
+        {syncMsg && <p className="mt-2 text-sm text-green-400">{syncMsg}</p>}
+      </section>
+
       <section className="rounded-xl border border-slate-700 bg-slate-800/40 p-5">
         <h2 className="mb-4 text-lg font-semibold text-white">Mục tiêu IELTS</h2>
         <div className="space-y-4">

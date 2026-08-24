@@ -36,6 +36,8 @@ export function Home() {
           <ReadinessScore
             score={stats.readinessScore}
             totalKnown={stats.totalKnown}
+            baseline={stats.baselineVocabSize}
+            masteredInApp={stats.mastered}
             target={stats.targetVocabSize}
             wordsNeeded={stats.wordsNeeded}
             retentionRate={stats.retentionRate}

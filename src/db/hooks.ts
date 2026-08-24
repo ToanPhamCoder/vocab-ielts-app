@@ -12,6 +12,12 @@ import {
   type VocabWord,
 } from './schema'
 import { cardToWordFields, reviewWord } from '../srs/fsrsService'
+import {
+  syncDeleteWord,
+  syncReviewLog,
+  syncSettings,
+  syncWord,
+} from '../sync/syncService'
 
 export function useWords() {
   return useLiveQuery(() => db.words.orderBy('addedDate').reverse().toArray(), [])
@@ -45,7 +51,9 @@ export async function getSettings(): Promise<UserSettings> {
 
 export async function saveSettings(partial: Partial<UserSettings>): Promise<void> {
   const current = await getSettings()
-  await db.settings.put({ ...current, ...partial, id: 'settings' })
+  const next = { ...current, ...partial, id: 'settings' as const }
+  await db.settings.put(next)
+  void syncSettings(next)
 }
 
 export async function addWord(data: {
@@ -73,12 +81,14 @@ export async function addWord(data: {
   }
 
   await db.words.add(vocabWord)
+  void syncWord(vocabWord)
   return vocabWord
 }
 
 export async function deleteWord(id: string): Promise<void> {
   await db.words.delete(id)
   await db.reviewLogs.where('wordId').equals(id).delete()
+  void syncDeleteWord(id)
 }
 
 export async function submitReview(
@@ -97,6 +107,8 @@ export async function submitReview(
     responseTimeMs,
   }
   await db.reviewLogs.add(log)
+  void syncWord(updated)
+  void syncReviewLog(log)
 
   return updated
 }
@@ -250,6 +262,7 @@ export function useStats() {
     retentionRate,
     readinessScore,
     totalKnown,
+    baselineVocabSize: settings.baselineVocabSize,
     wordsNeeded: Math.max(0, settings.targetVocabSize - totalKnown),
     monthlyTarget,
     masteredThisMonth,

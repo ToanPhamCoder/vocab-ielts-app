@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AuthProvider, useAuth } from './auth/AuthContext'
+import { AuthScreen } from './components/AuthScreen'
 import { Layout } from './components/Layout'
 import { DailyReviewModal } from './components/DailyReviewModal'
 import { OnboardingModal } from './components/OnboardingModal'
@@ -17,13 +19,22 @@ import {
 } from './notifications/notifyService'
 import { registerSW } from 'virtual:pwa-register'
 
-function App() {
+function AppInner() {
+  const { user, loading, syncing, configured } = useAuth()
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
     registerSW({ immediate: true })
     registerNotificationClickHandler()
+  }, [])
+
+  useEffect(() => {
+    if (loading || syncing) return
+    if (configured && !user) {
+      setReady(true)
+      return
+    }
 
     void getSettings().then((s) => {
       setShowOnboarding(!s.onboardingComplete)
@@ -32,14 +43,25 @@ function App() {
 
     void requestNotificationPermission()
     startNotificationPolling()
-
     return () => stopNotificationPolling()
-  }, [])
+  }, [user, loading, syncing, configured])
+
+  if (loading || (user && syncing && !ready)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-slate-400">
+        {syncing ? 'Đang đồng bộ dữ liệu...' : 'Đang khởi động...'}
+      </div>
+    )
+  }
+
+  if (configured && !user) {
+    return <AuthScreen />
+  }
 
   if (!ready) {
     return (
       <div className="flex min-h-screen items-center justify-center text-slate-400">
-        Đang khởi động...
+        Đang tải...
       </div>
     )
   }
@@ -60,6 +82,14 @@ function App() {
         </Routes>
       </Layout>
     </BrowserRouter>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   )
 }
 
