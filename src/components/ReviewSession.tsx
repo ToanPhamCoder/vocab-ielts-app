@@ -1,0 +1,178 @@
+import { useCallback, useEffect, useState } from 'react'
+import { buildReviewQueue, submitReview, updateStreak } from '../db/hooks'
+import type { ReviewRating, VocabWord } from '../db/schema'
+import { ratingLabel } from '../srs/fsrsService'
+
+interface ReviewSessionProps {
+  onComplete?: () => void
+}
+
+interface SessionSummary {
+  total: number
+  good: number
+  again: number
+}
+
+export function ReviewSession({ onComplete }: ReviewSessionProps) {
+  const [queue, setQueue] = useState<VocabWord[]>([])
+  const [index, setIndex] = useState(0)
+  const [flipped, setFlipped] = useState(false)
+  const [startTime, setStartTime] = useState(Date.now())
+  const [loading, setLoading] = useState(true)
+  const [summary, setSummary] = useState<SessionSummary | null>(null)
+  const [stats, setStats] = useState({ good: 0, again: 0 })
+
+  const loadQueue = useCallback(async () => {
+    setLoading(true)
+    const items = await buildReviewQueue()
+    setQueue(items)
+    setIndex(0)
+    setFlipped(false)
+    setStartTime(Date.now())
+    setSummary(null)
+    setStats({ good: 0, again: 0 })
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    void loadQueue()
+  }, [loadQueue])
+
+  const current = queue[index]
+
+  async function handleRating(rating: ReviewRating) {
+    if (!current) return
+    const responseTimeMs = Date.now() - startTime
+    await submitReview(current, rating, responseTimeMs)
+
+    const nextStats = {
+      good: stats.good + (rating >= 3 ? 1 : 0),
+      again: stats.again + (rating === 1 ? 1 : 0),
+    }
+    setStats(nextStats)
+
+    if (index + 1 >= queue.length) {
+      await updateStreak()
+      setSummary({
+        total: queue.length,
+        good: nextStats.good,
+        again: nextStats.again,
+      })
+      return
+    }
+
+    setIndex((i) => i + 1)
+    setFlipped(false)
+    setStartTime(Date.now())
+  }
+
+  if (loading) {
+    return <div className="py-12 text-center text-slate-400">?ang chu?n b? phi?n ?n...</div>
+  }
+
+  if (queue.length === 0) {
+    return (
+      <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-8 text-center">
+        <p className="text-lg text-slate-200">Kh?ng c? t? c?n ?n t?p!</p>
+        <p className="mt-2 text-sm text-slate-400">Th?m t? m?i ho?c quay l?i sau.</p>
+      </div>
+    )
+  }
+
+  if (summary) {
+    return (
+      <div className="rounded-xl border border-green-700/50 bg-green-900/20 p-8 text-center">
+        <h2 className="text-2xl font-bold text-green-300">Ho?n th?nh!</h2>
+        <p className="mt-4 text-slate-200">?? ?n {summary.total} t?</p>
+        <p className="mt-2 text-green-400">{summary.good} t? tr? l?i t?t</p>
+        <p className="mt-1 text-red-400">{summary.again} t? c?n ?n l?i</p>
+        <div className="mt-6 flex justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => void loadQueue()}
+            className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500"
+          >
+            ?n ti?p
+          </button>
+          <button
+            type="button"
+            onClick={onComplete}
+            className="rounded-lg border border-slate-600 px-4 py-2 font-medium text-slate-200 hover:bg-slate-700"
+          >
+            V? trang ch?
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mx-auto max-w-lg space-y-6">
+      <div className="flex items-center justify-between text-sm text-slate-400">
+        <span>
+          {index + 1} / {queue.length}
+        </span>
+        <div className="h-2 flex-1 mx-4 overflow-hidden rounded-full bg-slate-700">
+          <div
+            className="h-full bg-blue-500 transition-all"
+            style={{ width: `${((index + 1) / queue.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <div
+        className="card-flip cursor-pointer"
+        onClick={() => setFlipped((f) => !f)}
+        onKeyDown={(e) => e.key === ' ' && setFlipped((f) => !f)}
+        role="button"
+        tabIndex={0}
+      >
+        <div className={`card-inner relative min-h-[280px] ${flipped ? 'flipped' : ''}`}>
+          <div className="card-front absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-slate-600 bg-slate-800/80 p-8 shadow-xl">
+            <p className="text-sm uppercase tracking-widest text-slate-400">T? v?ng</p>
+            <h2 className="mt-4 text-4xl font-bold text-white">{current.word}</h2>
+            {current.phonetic && (
+              <p className="mt-2 text-lg text-slate-400">{current.phonetic}</p>
+            )}
+            {current.partOfSpeech && (
+              <span className="mt-3 rounded bg-slate-700 px-3 py-1 text-sm text-slate-300">
+                {current.partOfSpeech}
+              </span>
+            )}
+            <p className="mt-8 text-sm text-slate-500">Nh?n ?? xem ngh?a</p>
+          </div>
+          <div className="card-back absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-blue-600/50 bg-slate-800/80 p-8 shadow-xl">
+            <p className="text-sm uppercase tracking-widest text-slate-400">Ngh?a</p>
+            <p className="mt-4 text-center text-2xl text-white">{current.meaning}</p>
+            {current.example && (
+              <p className="mt-4 text-center text-sm italic text-slate-400">{current.example}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {flipped && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {([1, 2, 3, 4] as ReviewRating[]).map((rating) => {
+            const colors: Record<ReviewRating, string> = {
+              1: 'bg-red-600 hover:bg-red-500',
+              2: 'bg-orange-600 hover:bg-orange-500',
+              3: 'bg-green-600 hover:bg-green-500',
+              4: 'bg-blue-600 hover:bg-blue-500',
+            }
+            return (
+              <button
+                key={rating}
+                type="button"
+                onClick={() => void handleRating(rating)}
+                className={`rounded-lg px-3 py-3 text-sm font-semibold text-white ${colors[rating]}`}
+              >
+                {ratingLabel(rating)}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
