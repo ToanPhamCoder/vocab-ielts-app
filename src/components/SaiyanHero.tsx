@@ -27,9 +27,30 @@ export function SaiyanHero({
       style={{ borderColor: current.accent + '66' }}
     >
       <div className="grid gap-0 sm:grid-cols-[180px_1fr]">
-        <div className="relative min-h-[220px]">
-          <img src={current.image} alt={current.name} className="h-full w-full object-cover object-top" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+        <div className="relative min-h-[220px] overflow-hidden bg-slate-950">
+          <div
+            className="saiyan-aura pointer-events-none absolute -inset-6 blur-2xl"
+            style={{ background: `radial-gradient(circle at 50% 70%, ${current.accent} 0%, transparent 62%)` }}
+          />
+          <img
+            src={current.image}
+            alt={current.name}
+            className="saiyan-portrait relative z-10 h-full w-full object-cover object-top"
+          />
+          <div
+            className="saiyan-spark pointer-events-none absolute left-[18%] top-[22%] z-20 h-2 w-2 rounded-full"
+            style={{ background: current.accent, boxShadow: `0 0 10px ${current.accent}` }}
+          />
+          <div
+            className="saiyan-spark saiyan-spark-delay pointer-events-none absolute right-[20%] top-[38%] z-20 h-1.5 w-1.5 rounded-full"
+            style={{ background: '#fff', boxShadow: `0 0 8px ${current.accent}` }}
+          />
+          <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+            <div
+              className="saiyan-shimmer absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            />
+          </div>
+          <div className="pointer-events-none absolute inset-0 z-30 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
         </div>
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">

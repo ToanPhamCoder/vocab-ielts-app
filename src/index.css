@@ -37,3 +37,78 @@ body {
 .card-back {
   transform: rotateY(180deg);
 }
+
+@keyframes saiyan-breathe {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.035) translateY(-4px);
+  }
+}
+
+@keyframes saiyan-aura {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes saiyan-spark {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(-8px) scale(1.15);
+  }
+}
+
+@keyframes saiyan-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.saiyan-portrait {
+  animation: saiyan-breathe 4.2s ease-in-out infinite;
+  transform-origin: center 70%;
+  will-change: transform;
+}
+
+.saiyan-aura {
+  animation: saiyan-aura 2.4s ease-in-out infinite;
+}
+
+.saiyan-spark {
+  animation: saiyan-spark 1.8s ease-in-out infinite;
+}
+
+.saiyan-spark-delay {
+  animation-delay: 0.7s;
+}
+
+.saiyan-shimmer {
+  animation: saiyan-shimmer 5.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saiyan-portrait,
+  .saiyan-aura,
+  .saiyan-spark,
+  .saiyan-shimmer {
+    animation: none;
+  }
+}
+
