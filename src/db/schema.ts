@@ -54,6 +54,7 @@ export interface UserSettings {
   lastClearDueDate?: string
   consecutiveNonEasy: number
   unlockedAchievements: string[]
+  completedQuestIds: string[]
   lastLevel: number
 }
 
@@ -75,6 +76,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   clearDueStreak: 0,
   consecutiveNonEasy: 0,
   unlockedAchievements: [],
+  completedQuestIds: [],
   lastLevel: 1,
 }
 

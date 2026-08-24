@@ -3,8 +3,8 @@ import { Link, useLocation } from 'react-router-dom'
 const navItems = [
   { to: '/', label: 'Home', icon: 'H' },
   { to: '/add', label: 'Thêm', icon: '+' },
-  { to: '/words', label: 'Từ', icon: 'W' },
   { to: '/review', label: 'Ôn', icon: 'R' },
+  { to: '/quests', label: 'NV', icon: 'Q' },
   { to: '/dojo', label: 'Dojo', icon: 'D' },
   { to: '/settings', label: 'Set', icon: 'S' },
 ]

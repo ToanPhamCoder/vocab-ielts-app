@@ -50,6 +50,10 @@ export function Home() {
           </p>
         </Link>
       )}
+      <div className="flex gap-3 text-sm">
+        <Link to="/quests" className="text-amber-300 hover:underline">Nhiệm vụ cày XP</Link>
+        <Link to="/words" className="text-slate-400 hover:underline">Danh sách từ</Link>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-5">

@@ -142,3 +142,31 @@ export async function applyNewWordXp(): Promise<void> {
   settings = await evaluateAchievements(settings, extra)
   await saveSettings(settings)
 }
+
+export async function applyQuestXp(questId: string, xp: number): Promise<GameTick | null> {
+  const { getSettings, saveSettings } = await import('../db/hooks')
+  let settings = await getSettings()
+  if (settings.completedQuestIds.includes(questId)) return null
+
+  const beforeLevel = formForXp(settings.xp).level
+  const newAchievements: string[] = []
+  settings = {
+    ...settings,
+    xp: settings.xp + xp,
+    completedQuestIds: [...settings.completedQuestIds, questId],
+  }
+  settings = await evaluateAchievements(settings, newAchievements)
+  const after = formForXp(settings.xp)
+  settings = { ...settings, lastLevel: after.level }
+  await saveSettings(settings)
+
+  return {
+    xpGained: xp,
+    bonusXp: 0,
+    leveledUp: after.level > beforeLevel,
+    newLevel: after.level,
+    formName: after.name,
+    dailyComplete: settings.dailyGoalComplete,
+    newAchievements,
+  }
+}

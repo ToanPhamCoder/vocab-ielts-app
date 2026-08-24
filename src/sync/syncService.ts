@@ -92,6 +92,7 @@ function settingsToRow(userId: string, s: UserSettings) {
       lastClearDueDate: s.lastClearDueDate ?? null,
       consecutiveNonEasy: s.consecutiveNonEasy,
       unlockedAchievements: s.unlockedAchievements,
+      completedQuestIds: s.completedQuestIds,
       lastLevel: s.lastLevel,
     },
     updated_at: new Date().toISOString(),
@@ -123,6 +124,9 @@ function rowToSettings(row: Record<string, unknown>): UserSettings {
     consecutiveNonEasy: Number(game.consecutiveNonEasy ?? 0),
     unlockedAchievements: Array.isArray(game.unlockedAchievements)
       ? (game.unlockedAchievements as string[])
+      : [],
+    completedQuestIds: Array.isArray(game.completedQuestIds)
+      ? (game.completedQuestIds as string[])
       : [],
     lastLevel: Number(game.lastLevel ?? 1),
   }
