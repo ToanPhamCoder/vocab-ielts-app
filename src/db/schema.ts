@@ -56,6 +56,9 @@ export interface UserSettings {
   unlockedAchievements: string[]
   completedQuestIds: string[]
   lastLevel: number
+  lastPenaltyXp: number
+  lastPenaltyReason?: string
+  lastPenaltyDate?: string
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -68,7 +71,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   onboardingComplete: false,
   streak: 0,
   xp: 0,
-  dailyNewGoal: 10,
+  dailyNewGoal: 15,
   dailyDueTarget: 0,
   dailyDueReviewed: 0,
   dailyNewAdded: 0,
@@ -78,6 +81,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   unlockedAchievements: [],
   completedQuestIds: [],
   lastLevel: 1,
+  lastPenaltyXp: 0,
 }
 
 export class VocabDatabase extends Dexie {

@@ -31,7 +31,7 @@ export function useWord(id: string | undefined) {
 export function useSettings() {
   return useLiveQuery(async () => {
     const settings = await db.settings.get('settings')
-    return settings ? { ...DEFAULT_SETTINGS, ...settings, id: 'settings' as const } : DEFAULT_SETTINGS
+    return settings ? normalizeSettings(settings) : DEFAULT_SETTINGS
   }, [])
 }
 
@@ -44,7 +44,10 @@ export function useReviewLogs(days = 30) {
 }
 
 function normalizeSettings(s: UserSettings): UserSettings {
-  return { ...DEFAULT_SETTINGS, ...s, id: 'settings' }
+  const merged = { ...DEFAULT_SETTINGS, ...s, id: 'settings' as const }
+  if (!merged.dailyNewGoal || merged.dailyNewGoal < 15) merged.dailyNewGoal = 15
+  if (!merged.completedQuestIds) merged.completedQuestIds = []
+  return merged
 }
 
 export async function getSettings(): Promise<UserSettings> {

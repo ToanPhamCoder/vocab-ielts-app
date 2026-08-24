@@ -94,6 +94,9 @@ function settingsToRow(userId: string, s: UserSettings) {
       unlockedAchievements: s.unlockedAchievements,
       completedQuestIds: s.completedQuestIds,
       lastLevel: s.lastLevel,
+      lastPenaltyXp: s.lastPenaltyXp,
+      lastPenaltyReason: s.lastPenaltyReason ?? null,
+      lastPenaltyDate: s.lastPenaltyDate ?? null,
     },
     updated_at: new Date().toISOString(),
   }
@@ -113,7 +116,7 @@ function rowToSettings(row: Record<string, unknown>): UserSettings {
     streak: Number(row.streak),
     lastStreakDate: (row.last_streak_date as string | null) ?? undefined,
     xp: Number(game.xp ?? 0),
-    dailyNewGoal: Number(game.dailyNewGoal ?? 10),
+    dailyNewGoal: Number(game.dailyNewGoal ?? 15),
     dailyGoalDate: (game.dailyGoalDate as string | null) ?? undefined,
     dailyDueTarget: Number(game.dailyDueTarget ?? 0),
     dailyDueReviewed: Number(game.dailyDueReviewed ?? 0),
@@ -129,6 +132,9 @@ function rowToSettings(row: Record<string, unknown>): UserSettings {
       ? (game.completedQuestIds as string[])
       : [],
     lastLevel: Number(game.lastLevel ?? 1),
+    lastPenaltyXp: Number(game.lastPenaltyXp ?? 0),
+    lastPenaltyReason: (game.lastPenaltyReason as string | null) ?? undefined,
+    lastPenaltyDate: (game.lastPenaltyDate as string | null) ?? undefined,
   }
 }
 

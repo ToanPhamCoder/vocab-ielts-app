@@ -30,6 +30,18 @@ export function Home() {
 
   return (
     <div className="space-y-6">
+      {settings.lastPenaltyXp > 0 && settings.lastPenaltyDate === new Date().toLocaleDateString('en-CA') && (
+        <div className="rounded-xl border border-red-500/50 bg-red-950/40 p-4">
+          <p className="font-semibold text-red-300">Khí suy giảm — phạt nặng</p>
+          <p className="mt-1 text-sm text-red-200">
+            −{settings.lastPenaltyXp.toLocaleString()} XP
+            {settings.lastPenaltyReason ? ` · ${settings.lastPenaltyReason}` : ''}
+          </p>
+          <p className="mt-1 text-xs text-red-400/80">
+            Mỗi ngày phải đủ {settings.dailyNewGoal} từ mới (và ôn hết due). Streak đã reset.
+          </p>
+        </div>
+      )}
       <SaiyanHero
         xp={stats.xp}
         streak={stats.streak}

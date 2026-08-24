@@ -136,7 +136,7 @@ export function SettingsPanel() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-slate-300">Daily goal — từ mới mỗi ngày</label>
+            <label className="mb-1 block text-sm text-slate-300">Daily goal — từ mới mỗi ngày (phạt XP nếu thiếu)</label>
             <input
               type="number"
               min={0}

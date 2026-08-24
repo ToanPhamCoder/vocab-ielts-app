@@ -19,15 +19,66 @@ async function dueCountNow(): Promise<number> {
 export async function ensureDaily(settings: UserSettings): Promise<UserSettings> {
   const today = todayDateString()
   if (settings.dailyGoalDate === today) return settings
+
   const dueTarget = await dueCountNow()
+  let next: UserSettings = { ...settings }
+
+  if (settings.dailyGoalDate) {
+    const { xpLost, reasons } = calcDailyPenalty(settings)
+    if (xpLost > 0) {
+      const xp = Math.max(0, settings.xp - xpLost)
+      next = {
+        ...next,
+        xp,
+        streak: 0,
+        lastLevel: formForXp(xp).level,
+        lastPenaltyXp: xpLost,
+        lastPenaltyReason: reasons.join(' · '),
+        lastPenaltyDate: today,
+      }
+    } else {
+      next = {
+        ...next,
+        lastPenaltyXp: 0,
+        lastPenaltyReason: undefined,
+        lastPenaltyDate: today,
+      }
+    }
+  }
+
   return {
-    ...settings,
+    ...next,
     dailyGoalDate: today,
     dailyDueTarget: dueTarget,
     dailyDueReviewed: 0,
     dailyNewAdded: 0,
     dailyGoalComplete: false,
   }
+}
+
+export function calcDailyPenalty(settings: UserSettings): { xpLost: number; reasons: string[] } {
+  const needed = Math.max(1, settings.dailyNewGoal || 15)
+  const added = settings.dailyNewAdded ?? 0
+  const dueTarget = settings.dailyDueTarget ?? 0
+  const dueReviewed = settings.dailyDueReviewed ?? 0
+  const xp = Math.max(0, settings.xp ?? 0)
+  const reasons: string[] = []
+  let penalty = 0
+
+  if (added < needed) {
+    const missing = needed - added
+    penalty += Math.round(xp * 0.4) + missing * 80
+    reasons.push(`Thiếu ${missing}/${needed} từ mới`)
+  }
+  if (dueTarget > 0 && dueReviewed < dueTarget) {
+    const missingDue = dueTarget - dueReviewed
+    penalty += Math.round(xp * 0.25) + missingDue * 40
+    reasons.push(`Bỏ ${missingDue} từ due`)
+  }
+
+  if (penalty <= 0) return { xpLost: 0, reasons: [] }
+  const xpLost = Math.min(penalty, Math.max(0, Math.round(xp * 0.75)))
+  return { xpLost, reasons }
 }
 
 function unlock(settings: UserSettings, id: string, extra: string[]): UserSettings {
@@ -145,7 +196,7 @@ export async function applyNewWordXp(): Promise<void> {
 
 export async function applyQuestXp(questId: string, xp: number): Promise<GameTick | null> {
   const { getSettings, saveSettings } = await import('../db/hooks')
-  let settings = await getSettings()
+  let settings = await ensureDaily(await getSettings())
   if (settings.completedQuestIds.includes(questId)) return null
 
   const beforeLevel = formForXp(settings.xp).level
