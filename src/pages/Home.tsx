@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
-import { useStats, countDueWords, useSettings, saveSettings } from '../db/hooks'
+import { useStats, countDueWords, useSettings } from '../db/hooks'
 import { StatusDonut } from '../components/Dashboard/StatusDonut'
 import { MonthlyProgressBar } from '../components/Dashboard/MonthlyProgressBar'
 import { ReadinessScore } from '../components/Dashboard/ReadinessScore'
 import { VocabTrendLine } from '../components/Dashboard/VocabTrendLine'
 import { SaiyanHero } from '../components/SaiyanHero'
-import { ensureDaily } from '../game/progress'
+import { persistDailyRollover } from '../game/progress'
 import { useEffect, useState } from 'react'
 
 export function Home() {
@@ -19,9 +19,7 @@ export function Home() {
 
   useEffect(() => {
     if (!settings) return
-    void ensureDaily(settings).then((next) => {
-      if (next.dailyGoalDate !== settings.dailyGoalDate) void saveSettings(next)
-    })
+    void persistDailyRollover()
   }, [settings])
 
   if (!stats || !settings) {

@@ -105,6 +105,12 @@ export function todayDateString(): string {
   return new Date().toLocaleDateString('en-CA')
 }
 
+export function yesterdayDateString(): string {
+  const d = new Date()
+  d.setDate(d.getDate() - 1)
+  return d.toLocaleDateString('en-CA')
+}
+
 export function isMastered(word: VocabWord): boolean {
   return word.state === 'Review' && word.scheduledDays >= 21 && word.stability >= 5
 }

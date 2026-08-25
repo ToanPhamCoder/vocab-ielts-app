@@ -90,7 +90,7 @@ export async function addWord(data: {
 
   await db.words.add(vocabWord)
   void syncWord(vocabWord)
-  void applyNewWordXp()
+  await applyNewWordXp()
   return vocabWord
 }
 

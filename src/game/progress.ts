@@ -1,5 +1,27 @@
-import { db, isMastered, todayDateString, type ReviewRating, type UserSettings } from '../db/schema'
+import {
+  db,
+  isMastered,
+  todayDateString,
+  yesterdayDateString,
+  type ReviewRating,
+  type UserSettings,
+} from '../db/schema'
 import { CLEAR_DUE_BONUS, DAILY_GOAL_BONUS, XP_BY_RATING, formForXp } from './saiyan'
+
+let gameLock: Promise<void> = Promise.resolve()
+
+function withGameLock<T>(fn: () => Promise<T>): Promise<T> {
+  const run = gameLock.then(fn, fn)
+  gameLock = run.then(
+    () => undefined,
+    () => undefined,
+  )
+  return run
+}
+
+export async function countWordsAddedOn(date: string): Promise<number> {
+  return db.words.where('addedDate').equals(date).count()
+}
 
 export interface GameTick {
   xpGained: number
@@ -16,15 +38,42 @@ async function dueCountNow(): Promise<number> {
   return all.filter((w) => w.due <= new Date()).length
 }
 
+async function refundWrongNewWordPenalty(settings: UserSettings): Promise<UserSettings> {
+  const today = todayDateString()
+  if (settings.dailyGoalDate !== today) return settings
+  if (!settings.lastPenaltyXp || settings.lastPenaltyDate !== today) return settings
+  if (!settings.lastPenaltyReason?.includes('từ mới')) return settings
+
+  const yesterday = yesterdayDateString()
+  const added = await countWordsAddedOn(yesterday)
+  const needed = Math.max(1, settings.dailyNewGoal || 15)
+  if (added < needed) return settings
+
+  const xp = settings.xp + settings.lastPenaltyXp
+  const onlyNewWords = !settings.lastPenaltyReason.includes('due')
+  if (!onlyNewWords) return settings
+
+  return {
+    ...settings,
+    xp,
+    lastLevel: formForXp(xp).level,
+    lastPenaltyXp: 0,
+    lastPenaltyReason: undefined,
+    streak: settings.lastStreakDate === today ? settings.streak : Math.max(1, settings.streak),
+    lastStreakDate: settings.lastStreakDate === today ? settings.lastStreakDate : yesterday,
+  }
+}
+
 export async function ensureDaily(settings: UserSettings): Promise<UserSettings> {
   const today = todayDateString()
-  if (settings.dailyGoalDate === today) return settings
+  if (settings.dailyGoalDate === today) return refundWrongNewWordPenalty(settings)
 
   const dueTarget = await dueCountNow()
   let next: UserSettings = { ...settings }
 
   if (settings.dailyGoalDate) {
-    const { xpLost, reasons } = calcDailyPenalty(settings)
+    const added = await countWordsAddedOn(settings.dailyGoalDate)
+    const { xpLost, reasons } = calcDailyPenalty({ ...settings, dailyNewAdded: added })
     if (xpLost > 0) {
       const xp = Math.max(0, settings.xp - xpLost)
       next = {
@@ -112,6 +161,7 @@ export function isDailyComplete(s: UserSettings): boolean {
 }
 
 export async function applyReviewXp(rating: ReviewRating, wasDue: boolean): Promise<GameTick> {
+  return withGameLock(async () => {
   const { getSettings, saveSettings } = await import('../db/hooks')
   let settings = await ensureDaily(await getSettings())
   const beforeLevel = formForXp(settings.xp).level
@@ -170,31 +220,34 @@ export async function applyReviewXp(rating: ReviewRating, wasDue: boolean): Prom
     dailyComplete: settings.dailyGoalComplete,
     newAchievements,
   }
+  })
 }
 
 export async function applyNewWordXp(): Promise<void> {
-  const { getSettings, saveSettings } = await import('../db/hooks')
-  let settings = await ensureDaily(await getSettings())
-  const alreadyComplete = settings.dailyGoalComplete
-  settings = { ...settings, dailyNewAdded: settings.dailyNewAdded + 1 }
-  settings = { ...settings, dailyGoalComplete: isDailyComplete(settings) }
-  if (!alreadyComplete && settings.dailyGoalComplete) {
-    settings = { ...settings, xp: settings.xp + DAILY_GOAL_BONUS }
-    const today = todayDateString()
-    if (settings.lastStreakDate !== today) {
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yStr = yesterday.toLocaleDateString('en-CA')
-      const streak = settings.lastStreakDate === yStr ? settings.streak + 1 : 1
-      settings = { ...settings, streak, lastStreakDate: today, lastDailyReviewDate: today }
+  return withGameLock(async () => {
+    const { getSettings, saveSettings } = await import('../db/hooks')
+    let settings = await ensureDaily(await getSettings())
+    const alreadyComplete = settings.dailyGoalComplete
+    const added = await countWordsAddedOn(todayDateString())
+    settings = { ...settings, dailyNewAdded: added }
+    settings = { ...settings, dailyGoalComplete: isDailyComplete(settings) }
+    if (!alreadyComplete && settings.dailyGoalComplete) {
+      settings = { ...settings, xp: settings.xp + DAILY_GOAL_BONUS }
+      const today = todayDateString()
+      if (settings.lastStreakDate !== today) {
+        const yStr = yesterdayDateString()
+        const streak = settings.lastStreakDate === yStr ? settings.streak + 1 : 1
+        settings = { ...settings, streak, lastStreakDate: today, lastDailyReviewDate: today }
+      }
     }
-  }
-  const extra: string[] = []
-  settings = await evaluateAchievements(settings, extra)
-  await saveSettings(settings)
+    const extra: string[] = []
+    settings = await evaluateAchievements(settings, extra)
+    await saveSettings(settings)
+  })
 }
 
 export async function applyQuestXp(questId: string, xp: number): Promise<GameTick | null> {
+  return withGameLock(async () => {
   const { getSettings, saveSettings } = await import('../db/hooks')
   let settings = await ensureDaily(await getSettings())
   if (settings.completedQuestIds.includes(questId)) return null
@@ -220,4 +273,22 @@ export async function applyQuestXp(questId: string, xp: number): Promise<GameTic
     dailyComplete: settings.dailyGoalComplete,
     newAchievements,
   }
+  })
+}
+
+export async function persistDailyRollover(): Promise<void> {
+  return withGameLock(async () => {
+    const { getSettings, saveSettings } = await import('../db/hooks')
+    const settings = await getSettings()
+    const next = await ensureDaily(settings)
+    if (
+      next.dailyGoalDate !== settings.dailyGoalDate ||
+      next.xp !== settings.xp ||
+      next.lastPenaltyXp !== settings.lastPenaltyXp ||
+      next.streak !== settings.streak ||
+      next.lastPenaltyReason !== settings.lastPenaltyReason
+    ) {
+      await saveSettings(next)
+    }
+  })
 }
