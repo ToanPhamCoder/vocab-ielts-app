@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 const navItems = [
   { to: '/', label: 'Home', icon: 'H' },
   { to: '/add', label: 'Thêm', icon: '+' },
+  { to: '/words', label: 'Từ', icon: 'T' },
   { to: '/review', label: 'Ôn', icon: 'R' },
   { to: '/quests', label: 'NV', icon: 'Q' },
   { to: '/dojo', label: 'Dojo', icon: 'D' },
@@ -26,7 +27,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <nav className="fixed bottom-0 left-0 right-0 border-t border-slate-700/60 bg-slate-900/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl justify-around px-1 py-2">
           {navItems.map((item) => {
-            const active = location.pathname === item.to
+            const active =
+              item.to === '/'
+                ? location.pathname === '/'
+                : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)
             return (
               <Link
                 key={item.to}

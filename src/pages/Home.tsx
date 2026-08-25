@@ -62,9 +62,18 @@ export function Home() {
           </p>
         </Link>
       )}
-      <div className="flex gap-3 text-sm">
-        <Link to="/quests" className="text-amber-300 hover:underline">Nhiệm vụ cày XP</Link>
-        <Link to="/words" className="text-slate-400 hover:underline">Danh sách từ</Link>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Link
+          to="/words"
+          className="block rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 transition hover:bg-amber-950/40"
+        >
+          <p className="font-semibold text-amber-200">Chủ đề theo ngày thêm →</p>
+          <p className="mt-1 text-sm text-slate-400">Xem full list từng ngày và học flashcard</p>
+        </Link>
+        <Link to="/quests" className="block rounded-xl border border-slate-700 p-4 text-slate-300 hover:bg-slate-800/60">
+          <p className="font-semibold">Nhiệm vụ cày XP →</p>
+          <p className="mt-1 text-sm text-slate-400">Bài tập một lần từ từ đã lưu</p>
+        </Link>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

@@ -8,6 +8,7 @@ import { OnboardingModal } from './components/OnboardingModal'
 import { Home } from './pages/Home'
 import { AddWord } from './pages/AddWord'
 import { Words } from './pages/Words'
+import { TopicDetail } from './pages/TopicDetail'
 import { Review } from './pages/Review'
 import { Settings } from './pages/Settings'
 import { Dojo } from './pages/Dojo'
@@ -79,6 +80,7 @@ function AppInner() {
           <Route path="/" element={<Home />} />
           <Route path="/add" element={<AddWord />} />
           <Route path="/words" element={<Words />} />
+          <Route path="/words/:date" element={<TopicDetail />} />
           <Route path="/review" element={<Review />} />
           <Route path="/dojo" element={<Dojo />} />
           <Route path="/quests" element={<Quests />} />

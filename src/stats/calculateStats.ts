@@ -57,3 +57,13 @@ export function formatDateLabel(dateStr: string): string {
   const [y, m, d] = dateStr.split('-')
   return `${d}/${m}/${y}`
 }
+
+export function formatTopicTitle(dateStr: string): string {
+  const short = formatDateLabel(dateStr)
+  if (short === 'Hôm nay' || short === 'Hôm qua') return short
+  const [y, m, d] = dateStr.split('-').map(Number)
+  if (!y || !m || !d) return dateStr
+  const date = new Date(y, m - 1, d)
+  const weekdays = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
+  return `${weekdays[date.getDay()]}, ${short}`
+}
