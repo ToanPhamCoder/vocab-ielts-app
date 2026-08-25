@@ -103,28 +103,28 @@ export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps)
           onClick={onClose}
           className="rounded-full border border-slate-600 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-800"
         >
-          Đóng
+          ��óng
         </button>
       </div>
 
       {done || !current ? (
         <div className="mx-auto mt-16 max-w-lg rounded-2xl border border-green-700/40 bg-green-950/30 p-8 text-center">
           <p className="text-2xl font-bold text-green-300">Xong bộ flashcard</p>
-          <p className="mt-2 text-slate-300">Đã xem {total} từ của chủ đề này.</p>
+          <p className="mt-2 text-slate-300">��ã xem {total} từ của chủ đ�� này.</p>
           <div className="mt-6 flex justify-center gap-3">
             <button
               type="button"
               onClick={() => restart()}
               className="rounded-lg bg-amber-500 px-4 py-2 font-semibold text-slate-950 hover:bg-amber-400"
             >
-              Học lại
+              H��c lại
             </button>
             <button
               type="button"
               onClick={onClose}
               className="rounded-lg border border-slate-600 px-4 py-2 text-slate-200 hover:bg-slate-800"
             >
-              Về danh sách
+              V�� danh sách
             </button>
           </div>
         </div>
@@ -157,19 +157,26 @@ export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps)
             className="card-flip w-full"
             onClick={() => setFlipped((f) => !f)}
           >
-            <div className={`card-inner relative min-h-[300px] ${flipped ? 'flipped' : ''}`}>
+            <div
+              key={current.id}
+              className={`card-inner relative min-h-[300px] ${flipped ? 'flipped' : ''}`}
+            >
               <div className="card-front absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-slate-600 bg-slate-800 p-8">
                 <p className="text-sm uppercase tracking-widest text-slate-400">{front.label}</p>
                 <p className="mt-4 text-center text-4xl font-bold text-white">{front.main}</p>
                 {front.sub && <p className="mt-3 text-center text-slate-400">{front.sub}</p>}
-                <p className="mt-8 text-sm text-slate-500">Nhấn để lật thẻ</p>
+                <p className="mt-8 text-sm text-slate-500">Nh?n ?? l?t th?</p>
               </div>
               <div className="card-back absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-amber-500/40 bg-slate-800 p-8">
-                <p className="text-sm uppercase tracking-widest text-amber-300">{back.label}</p>
-                <p className="mt-4 text-center text-3xl font-bold text-white">{back.main}</p>
-                {back.sub && <p className="mt-3 text-center italic text-slate-400">{back.sub}</p>}
-                {back.extra && back.extra !== back.sub && (
-                  <p className="mt-2 text-sm text-slate-500">{back.extra}</p>
+                {flipped && (
+                  <>
+                    <p className="text-sm uppercase tracking-widest text-amber-300">{back.label}</p>
+                    <p className="mt-4 text-center text-3xl font-bold text-white">{back.main}</p>
+                    {back.sub && <p className="mt-3 text-center italic text-slate-400">{back.sub}</p>}
+                    {back.extra && back.extra !== back.sub && (
+                      <p className="mt-2 text-sm text-slate-500">{back.extra}</p>
+                    )}
+                  </>
                 )}
               </div>
             </div>

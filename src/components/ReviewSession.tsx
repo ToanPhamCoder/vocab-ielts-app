@@ -139,7 +139,10 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
         role="button"
         tabIndex={0}
       >
-        <div className={`card-inner relative min-h-[280px] ${flipped ? 'flipped' : ''}`}>
+        <div
+          key={current.id}
+          className={`card-inner relative min-h-[280px] ${flipped ? 'flipped' : ''}`}
+        >
           <div className="card-front absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-slate-600 bg-slate-800/80 p-8 shadow-xl">
             <p className="text-sm uppercase tracking-widest text-slate-400">Từ vựng</p>
             <h2 className="mt-4 text-4xl font-bold text-white">{current.word}</h2>
@@ -154,10 +157,14 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
             <p className="mt-8 text-sm text-slate-500">Nhấn để xem nghĩa</p>
           </div>
           <div className="card-back absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-blue-600/50 bg-slate-800/80 p-8 shadow-xl">
-            <p className="text-sm uppercase tracking-widest text-slate-400">Nghĩa</p>
-            <p className="mt-4 text-center text-2xl text-white">{current.meaning}</p>
-            {current.example && (
-              <p className="mt-4 text-center text-sm italic text-slate-400">{current.example}</p>
+            {flipped && (
+              <>
+                <p className="text-sm uppercase tracking-widest text-slate-400">Nghĩa</p>
+                <p className="mt-4 text-center text-2xl text-white">{current.meaning}</p>
+                {current.example && (
+                  <p className="mt-4 text-center text-sm italic text-slate-400">{current.example}</p>
+                )}
+              </>
             )}
           </div>
         </div>
