@@ -19,33 +19,35 @@ interface TopicFlashcardsProps {
 export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps) {
   const [deck, setDeck] = useState<VocabWord[]>(() => shuffle(words))
   const [index, setIndex] = useState(0)
-  const [flipped, setFlipped] = useState(false)
+  const [flippedId, setFlippedId] = useState<string | null>(null)
+  const [flipAnim, setFlipAnim] = useState(false)
   const [viFirst, setViFirst] = useState(false)
   const [done, setDone] = useState(false)
 
   const current = deck[index]
   const total = deck.length
+  const flipped = Boolean(current && flippedId === current.id)
 
   const front = useMemo(() => {
     if (!current) return { label: '', main: '', sub: '' }
     if (viFirst) {
-      return { label: 'Nghƒ©a', main: current.meaning, sub: current.example ?? '' }
+      return { label: 'Ngh?a', main: current.meaning, sub: current.example ?? '' }
     }
-    return { label: 'T·ª´ v·ª±ng', main: current.word, sub: current.phonetic ?? '' }
+    return { label: 'T? v?ng', main: current.word, sub: current.phonetic ?? '' }
   }, [current, viFirst])
 
   const back = useMemo(() => {
     if (!current) return { label: '', main: '', sub: '', extra: '' }
     if (viFirst) {
       return {
-        label: 'T·ª´ v·ª±ng',
+        label: 'T? v?ng',
         main: current.word,
         sub: current.phonetic ?? '',
         extra: current.example ?? '',
       }
     }
     return {
-      label: 'Nghƒ©a',
+      label: 'Ngh?a',
       main: current.meaning,
       sub: current.example ?? '',
       extra: current.partOfSpeech ?? '',
@@ -55,7 +57,8 @@ export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps)
   function restart(nextWords = words) {
     setDeck(shuffle(nextWords))
     setIndex(0)
-    setFlipped(false)
+    setFlippedId(null)
+    setFlipAnim(false)
     setDone(false)
   }
 
@@ -67,8 +70,9 @@ export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps)
         setDone(true)
         return
       }
+      setFlipAnim(false)
+      setFlippedId(null)
       setIndex(next)
-      setFlipped(false)
     },
     [index, total],
   )
@@ -82,14 +86,16 @@ export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps)
       if (done) return
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault()
-        setFlipped((f) => !f)
+        if (!current) return
+        setFlipAnim(true)
+        setFlippedId((id) => (id === current.id ? null : current.id))
       }
       if (e.key === 'ArrowRight') go(1)
       if (e.key === 'ArrowLeft') go(-1)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [done, go, onClose])
+  }, [done, go, onClose, current])
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/95 px-4 pb-8 pt-4">
@@ -103,28 +109,28 @@ export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps)
           onClick={onClose}
           className="rounded-full border border-slate-600 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-800"
         >
-          ƒˇ√≥ng
+          ùùùng
         </button>
       </div>
 
       {done || !current ? (
         <div className="mx-auto mt-16 max-w-lg rounded-2xl border border-green-700/40 bg-green-950/30 p-8 text-center">
-          <p className="text-2xl font-bold text-green-300">Xong b·ªô flashcard</p>
-          <p className="mt-2 text-slate-300">ƒˇ√£ xem {total} t·ª´ c·ªßa ch·ªß ƒë·ªˇ n√†y.</p>
+          <p className="text-2xl font-bold text-green-300">Xong b? flashcard</p>
+          <p className="mt-2 text-slate-300">ùùù xem {total} t? c?a ch? ?ùù nùy.</p>
           <div className="mt-6 flex justify-center gap-3">
             <button
               type="button"
               onClick={() => restart()}
               className="rounded-lg bg-amber-500 px-4 py-2 font-semibold text-slate-950 hover:bg-amber-400"
             >
-              H·ªˇc l·∫°i
+              Hùùc l?i
             </button>
             <button
               type="button"
               onClick={onClose}
               className="rounded-lg border border-slate-600 px-4 py-2 text-slate-200 hover:bg-slate-800"
             >
-              V·ªˇ danh s√°ch
+              Vùù danh sùch
             </button>
           </div>
         </div>
@@ -144,22 +150,27 @@ export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps)
               type="button"
               onClick={() => {
                 setViFirst((v) => !v)
-                setFlipped(false)
+                setFlipAnim(false)
+                setFlippedId(null)
               }}
               className="shrink-0 rounded-full border border-slate-600 px-2 py-1 text-xs text-slate-300"
             >
-              {viFirst ? 'VI ‚Üí EN' : 'EN ‚Üí VI'}
+              {viFirst ? 'VI ? EN' : 'EN ? VI'}
             </button>
           </div>
 
           <button
             type="button"
             className="card-flip w-full"
-            onClick={() => setFlipped((f) => !f)}
+            onClick={() => {
+              if (!current) return
+              setFlipAnim(true)
+              setFlippedId((id) => (id === current.id ? null : current.id))
+            }}
           >
             <div
               key={current.id}
-              className={`card-inner relative min-h-[300px] ${flipped ? 'flipped' : ''}`}
+              className={`card-inner relative min-h-[300px] ${flipAnim ? 'flip-anim' : ''} ${flipped ? 'flipped' : ''}`}
             >
               <div className="card-front absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-slate-600 bg-slate-800 p-8">
                 <p className="text-sm uppercase tracking-widest text-slate-400">{front.label}</p>
@@ -189,21 +200,25 @@ export function TopicFlashcards({ words, title, onClose }: TopicFlashcardsProps)
               disabled={index === 0}
               className="rounded-lg border border-slate-600 py-3 text-sm font-medium text-slate-200 disabled:opacity-30"
             >
-              Tr∆∞·ªõc
+              Tr??c
             </button>
             <button
               type="button"
-              onClick={() => setFlipped((f) => !f)}
+              onClick={() => {
+                if (!current) return
+                setFlipAnim(true)
+                setFlippedId((id) => (id === current.id ? null : current.id))
+              }}
               className="rounded-lg bg-slate-700 py-3 text-sm font-medium text-white"
             >
-              L·∫≠t
+              L?t
             </button>
             <button
               type="button"
               onClick={() => go(1)}
               className="rounded-lg bg-amber-500 py-3 text-sm font-semibold text-slate-950 hover:bg-amber-400"
             >
-              {index + 1 >= total ? 'Xong' : 'Ti·∫øp'}
+              {index + 1 >= total ? 'Xong' : 'Ti?p'}
             </button>
           </div>
         </div>

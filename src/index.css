@@ -21,8 +21,11 @@ body {
 }
 
 .card-inner {
-  transition: transform 0.4s;
   transform-style: preserve-3d;
+}
+
+.card-inner.flip-anim {
+  transition: transform 0.4s;
 }
 
 .card-inner.flipped {

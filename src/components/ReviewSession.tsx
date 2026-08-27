@@ -18,7 +18,8 @@ interface SessionSummary {
 export function ReviewSession({ onComplete }: ReviewSessionProps) {
   const [queue, setQueue] = useState<VocabWord[]>([])
   const [index, setIndex] = useState(0)
-  const [flipped, setFlipped] = useState(false)
+  const [flippedId, setFlippedId] = useState<string | null>(null)
+  const [flipAnim, setFlipAnim] = useState(false)
   const [startTime, setStartTime] = useState(Date.now())
   const [loading, setLoading] = useState(true)
   const [summary, setSummary] = useState<SessionSummary | null>(null)
@@ -30,7 +31,8 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
     const items = await buildReviewQueue()
     setQueue(items)
     setIndex(0)
-    setFlipped(false)
+    setFlippedId(null)
+    setFlipAnim(false)
     setStartTime(Date.now())
     setSummary(null)
     setStats({ good: 0, again: 0, xp: 0 })
@@ -42,9 +44,18 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
   }, [loadQueue])
 
   const current = queue[index]
+  const flipped = Boolean(current && flippedId === current.id)
+
+  function flipCard() {
+    if (!current) return
+    setFlipAnim(true)
+    setFlippedId((id) => (id === current.id ? null : current.id))
+  }
 
   async function handleRating(rating: ReviewRating) {
     if (!current) return
+    setFlipAnim(false)
+    setFlippedId(null)
     const responseTimeMs = Date.now() - startTime
     const { game } = await submitReview(current, rating, responseTimeMs)
     if (game.leveledUp) setLevelUpXp((await getSettings()).xp)
@@ -67,7 +78,6 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
     }
 
     setIndex((i) => i + 1)
-    setFlipped(false)
     setStartTime(Date.now())
   }
 
@@ -133,15 +143,15 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
       </div>
 
       <div
+        key={current.id}
         className="card-flip cursor-pointer"
-        onClick={() => setFlipped((f) => !f)}
-        onKeyDown={(e) => e.key === ' ' && setFlipped((f) => !f)}
+        onClick={flipCard}
+        onKeyDown={(e) => e.key === ' ' && flipCard()}
         role="button"
         tabIndex={0}
       >
         <div
-          key={current.id}
-          className={`card-inner relative min-h-[280px] ${flipped ? 'flipped' : ''}`}
+          className={`card-inner relative min-h-[280px] ${flipAnim ? 'flip-anim' : ''} ${flipped ? 'flipped' : ''}`}
         >
           <div className="card-front absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-slate-600 bg-slate-800/80 p-8 shadow-xl">
             <p className="text-sm uppercase tracking-widest text-slate-400">Từ vựng</p>
@@ -157,7 +167,7 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
             <p className="mt-8 text-sm text-slate-500">Nhấn để xem nghĩa</p>
           </div>
           <div className="card-back absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-blue-600/50 bg-slate-800/80 p-8 shadow-xl">
-            {flipped && (
+            {flipped ? (
               <>
                 <p className="text-sm uppercase tracking-widest text-slate-400">Nghĩa</p>
                 <p className="mt-4 text-center text-2xl text-white">{current.meaning}</p>
@@ -165,7 +175,7 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
                   <p className="mt-4 text-center text-sm italic text-slate-400">{current.example}</p>
                 )}
               </>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -183,7 +193,10 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
               <button
                 key={rating}
                 type="button"
-                onClick={() => void handleRating(rating)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  void handleRating(rating)
+                }}
                 className={`rounded-lg px-3 py-3 text-sm font-semibold text-white ${colors[rating]}`}
               >
                 {ratingLabel(rating)}
