@@ -126,11 +126,11 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="mx-auto max-w-lg space-y-3 sm:space-y-6">
       {levelUpXp !== null && (
         <LevelUpModal xp={levelUpXp} onClose={() => setLevelUpXp(null)} />
       )}
-      <div className="flex items-center justify-between text-sm text-slate-400">
+      <div className="flex items-center justify-between text-sm text-slate-400 max-sm:hidden">
         <span>
           {index + 1} / {queue.length}
         </span>
@@ -155,7 +155,7 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
         >
           <div className="card-front absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-slate-600 bg-slate-800/80 p-8 shadow-xl">
             <p className="text-sm uppercase tracking-widest text-slate-400">Từ vựng</p>
-            <h2 className="mt-4 text-4xl font-bold text-white">{current.word}</h2>
+            <h2 className="mt-4 max-w-full break-words text-center text-3xl font-bold text-white sm:text-4xl">{current.word}</h2>
             {current.phonetic && (
               <p className="mt-2 text-lg text-slate-400">{current.phonetic}</p>
             )}
@@ -181,7 +181,7 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
       </div>
 
       {flipped && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
           {([1, 2, 3, 4] as ReviewRating[]).map((rating) => {
             const colors: Record<ReviewRating, string> = {
               1: 'bg-red-600 hover:bg-red-500',
@@ -197,7 +197,7 @@ export function ReviewSession({ onComplete }: ReviewSessionProps) {
                   e.stopPropagation()
                   void handleRating(rating)
                 }}
-                className={`rounded-lg px-3 py-3 text-sm font-semibold text-white ${colors[rating]}`}
+                className={`rounded-lg px-1 py-2 text-xs font-semibold text-white sm:px-3 sm:py-3 sm:text-sm ${colors[rating]}`}
               >
                 {ratingLabel(rating)}
               </button>

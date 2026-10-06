@@ -85,6 +85,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const location = useLocation()
   const navigate = useNavigate()
   const [moreOpen, setMoreOpen] = useState(false)
+  const isReviewPage = isActivePath(location.pathname, '/review')
   const moreActive = ['/quests', '/dojo', '/settings'].some((p) => isActivePath(location.pathname, p))
 
   useEffect(() => {
@@ -101,8 +102,8 @@ export function Layout({ children }: { children: ReactNode }) {
   ] as const
 
   return (
-    <div className="mx-auto min-h-screen max-w-5xl px-4 pb-28 pt-6 sm:px-6">
-      <header className="mb-6">
+    <div className={`mx-auto min-h-screen max-w-5xl px-4 sm:px-6 ${isReviewPage ? 'pb-4 pt-4 sm:pb-28 sm:pt-6' : 'pb-28 pt-6'}`}>
+      <header className={`mb-6 ${isReviewPage ? 'max-sm:hidden' : ''}`}>
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
           <span className="text-blue-400">Vocab</span> IELTS
         </h1>
@@ -154,7 +155,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-700/70 bg-slate-950/92 backdrop-blur-xl">
+      <nav className={`fixed bottom-0 left-0 right-0 z-50 border-t border-slate-700/70 bg-slate-950/92 backdrop-blur-xl ${isReviewPage ? 'max-sm:hidden' : ''}`}>
         <div className="mx-auto grid max-w-5xl grid-cols-5 items-end px-2 pt-1 pb-[max(0.45rem,env(safe-area-inset-bottom))]">
           {tabs.map((item) => {
             const active = isActivePath(location.pathname, item.to)
